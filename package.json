@@ -4,8 +4,11 @@
   "description": "app for effective JIRA tracking",
   "main": "server.js",
   "author": "cyrilpanicker@gmail.com",
-  "license": "I",
+  "license": "",
   "dependencies": {
     "nodemailer": "^1.3.0"
+    "nodemailer-smtp-transport": "~0.1.13",
+    "express": "~4.11.2",
+    "request": "~2.53.0"
   }
 }
