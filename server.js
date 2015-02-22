@@ -1,9 +1,10 @@
 var express = require('express');
+var request = require('request')
 
 var app=express();
 
 app.get('/jira/*',function (req,res) {
-	request('http://public-api.wordpress.com/'+req.originalUrl.slice(6)).pipe(res);
+	request('https://obujira.searshc.com'+req.originalUrl).pipe(res);
 })
 
 app.use(express.static('public'));
