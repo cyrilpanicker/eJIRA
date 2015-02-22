@@ -8,66 +8,106 @@
 	<script src="/scripts/angular.min.js"></script>
 	<script>
 	angular.module('app', [])
-	.factory('Service', ['$http,$q', function ($http,$q) {
+	.factory('JiraService', ['$http','$q', function ($http,$q) {
 		var service={};
-		var getOneIssue = function (startAt) {
+		service.getJiraCount = function () {
 			return $http({
 				method:'GET',
 				url:'/jira/rest/api/2/search',
 				params:{
-					jql:"Project = SG AND Type = Bug AND 'Defect Environment' = Production AND Status not in (Resolved, Verified, Closed) AND assignee in (USP_SAL_IRS_SUPPORT, USP_UC_UP_SUPPORT, ShopSears_Support, MobileAppSupport, danand1, mmohan1, aatla0, bsingh6, PTHANKA, amuthiy, RDEV1, rasthan, bdutta0, MKUMAR5, rveedu, abaner2, DPANT, ddevara, rmeena, abhatt1, skandiy, akalimu, gsundha, mmohan2, pmancha, srajesw, ntreesa, pwilso4, smishr0, amanog0, Kpalan0, srajama, schand3, vmuthus, nmathe1, kramakr, rjacob0, rthanka, vvenka2, rthanka, ssiraju, nthom18, aabrah8, vmeruva) AND ('Sub Project' in ('ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects') OR 'Sub Project' in ('ShopSears 2.0', 'ShopSears Lite_UC', 'ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects', 'Mobile 6.x', 'Core Mobile Services', 'Service Abstraction Layer', FindItCenter, 'In Store Kiosk') AND component in (USP_VAULT, USP_URS, USP_UAS, USP_SAL, USP_UC, USP_UPAS, USP_OMS, 'Print Receipt', USP_UP, USP_PV, USP_SAL_Cart, USP_Shipping, RDM, USP_IRS) AND Priority in (P1, P2)) ORDER BY priority ASC, createdDate ASC",
+					jql:"Project = SG AND Type = Bug AND 'Defect Environment' = Production AND Status not in (Resolved, Verified, Closed) AND assignee in (USP_SAL_IRS_SUPPORT, USP_UC_UP_SUPPORT, ShopSears_Support, MobileAppSupport, danand1, mmohan1, aatla0, bsingh6, PTHANKA, amuthiy, RDEV1, rasthan, bdutta0, MKUMAR5, rveedu, abaner2, DPANT, ddevara, rmeena, abhatt1, skandiy, akalimu, gsundha, mmohan2, pmancha, srajesw, ntreesa, pwilso4, smishr0, amanog0, Kpalan0, srajama, schand3, vmuthus, nmathe1, kramakr, rjacob0, rthanka, vvenka2, rthanka, ssiraju, nthom18, aabrah8, vmeruva) AND ('Sub Project' in ('ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects') OR 'Sub Project' in ('ShopSears 2.0', 'ShopSears Lite_UC', 'ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects', 'Mobile 6.x', 'Core Mobile Services', 'Service Abstraction Layer', FindItCenter, 'In Store Kiosk') AND component in (USP_VAULT, USP_URS, USP_UAS, USP_SAL, USP_UC, USP_UPAS, USP_OMS, 'Print Receipt', USP_UP, USP_PV, USP_SAL_Cart, USP_Shipping, RDM, USP_IRS) AND Priority in (P1, P2)) ORDER BY priority DESC, createdDate ASC",
 					fields:[
 					"key","summary","priority","assignee","status","updated","components","labels","customfield_10024"
 					],
-					startAt:startAt,
-					maxResults:1
+					startAt : 0,
+					maxResults : 1
 				}
 			})
-		};
-		var getIssueCount = function () {
-			return getOneIssue(0)
-			.then(function (response){
+			.then(function(response){
 				return response.data.total;
-			},function (errorResponse){
-				return $q.reject();
+			},function(errorResponse){
+				return $q.reject(errorResponse.data);
 			});
 		};
-		service.getAllIssues=function () {
-			var totalIssues;
-			var issues=[];
-			var index = 0;
-			var issueFetched;
-			var allIssuesFetched = [];
-			getIssueCount()
-			.then(function (response){
-				totalIssues = response.data;
-				for (var index = 0; index < totalIssues; index++) {
-					issueFetched = getOneIssue(index)
-					.then(function (response){
-						issues.push(response.data.issues[0]);
-					},function (errorResponse){
-						//TODO
-					});
-					allIssuesFetched.push(issueFetched);
-				};
-			},function (errorResponse){
-				//TODO
+		service.getJirasInBulk = function (options) {
+			return $http({
+				method:'GET',
+				url:'/jira/rest/api/2/search',
+				params:{
+					jql:"Project = SG AND Type = Bug AND 'Defect Environment' = Production AND Status not in (Resolved, Verified, Closed) AND assignee in (USP_SAL_IRS_SUPPORT, USP_UC_UP_SUPPORT, ShopSears_Support, MobileAppSupport, danand1, mmohan1, aatla0, bsingh6, PTHANKA, amuthiy, RDEV1, rasthan, bdutta0, MKUMAR5, rveedu, abaner2, DPANT, ddevara, rmeena, abhatt1, skandiy, akalimu, gsundha, mmohan2, pmancha, srajesw, ntreesa, pwilso4, smishr0, amanog0, Kpalan0, srajama, schand3, vmuthus, nmathe1, kramakr, rjacob0, rthanka, vvenka2, rthanka, ssiraju, nthom18, aabrah8, vmeruva) AND ('Sub Project' in ('ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects') OR 'Sub Project' in ('ShopSears 2.0', 'ShopSears Lite_UC', 'ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects', 'Mobile 6.x', 'Core Mobile Services', 'Service Abstraction Layer', FindItCenter, 'In Store Kiosk') AND component in (USP_VAULT, USP_URS, USP_UAS, USP_SAL, USP_UC, USP_UPAS, USP_OMS, 'Print Receipt', USP_UP, USP_PV, USP_SAL_Cart, USP_Shipping, RDM, USP_IRS) AND Priority in (P1, P2)) ORDER BY priority DESC, createdDate ASC",
+					fields:[
+					"key","summary","priority","assignee","status","updated","components","labels","customfield_10024"
+					],
+					startAt : (options && options.startAt) || 0,
+					maxResults : (options && options.maxResults) || 1
+				}
+			})
+			.then(function(response){
+				return response.data.issues;
+			},function(errorResponse){
+				return $q.reject(errorResponse.data);
 			});
-			return $q.all(allIssuesFetched)
-			.then(function (response){
-				return issues;
-			},function (errorResponse){
-				//TODO
+		};
+		service.getJirasInBatches = function (options) {
+			var jiras = [],
+				startAt = (options && options.startAt) || 0,
+				maxResults = (options && options.maxResults) || 1,
+				jiraFetchedPromise,
+				allJirasFetchedPromise = [];
+			for (var i = 0; i < maxResults; i++) {
+				(function (i) {
+					jiraFetchedPromise = service.getJirasInBulk({startAt:(startAt+i), maxResults:1})
+					.then(function(jira){
+						jiras[i] = jira[0];
+					},function(errorResponse){
+						$q.reject();
+					});
+					allJirasFetchedPromise.push(jiraFetchedPromise);
+				})(i)
+			};
+			return $q.all(allJirasFetchedPromise)
+			.then(function(response){
+				return jiras;
+			},function(errorResponse){
+				$q.reject();
 			});
 		};
 		return service;
 	}])
-	.controller('JiraController', ['Service', function (Service) {
-		Service.getAllJiras();
+	.controller('JiraController', ['$scope','JiraService', function ($scope,JiraService) {
+		JiraService.getJiraCount()
+		.then(function(count){
+			$scope.count=count;
+			return JiraService.getJirasInBulk({startAt:0,maxResults:count});
+		},function(errorResponse){
+			
+		})
+		.then(function(jiras){
+			$scope.jiras=jiras;
+		},function(errorResponse){
+			
+		});
 	}]);
-	</script>
+</script>
 </head>
 <body ng-app="app">
-	<div ng-controller="JiraController"></div>
+	<div ng-controller="JiraController">
+		Jira Count : {{count}}
+		<br/>
+		<table border="1">
+			<thead>
+				<thead>Jira</thead>
+				<thead>Description</thead>
+				<thead>Assignee</thead>
+			</thead>
+			<tbody>
+				<tr ng-repeat="jira in jiras">
+					<td ng-bind="jira.key"></td>
+					<td ng-bind="jira.fields.summary"></td>
+					<td ng-bind="jira.fields.assignee.displayName"></td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
 </body>
 </html>
