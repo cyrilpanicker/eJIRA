@@ -29,10 +29,8 @@ io.on('connection',function (socket) {
 		list : processedMinimalJiraList
 	});
 	socket.on('jiraSelected',function (jira) {
-		console.log('jiraSelected '+jira.id);
 		for (var i = processedJiraList.length - 1; i >= 0; i--) {
 			if (processedJiraList[i].id == jira.id) {
-				console.log('jira found '+jira.id);
 				socket.emit('jiraSelectedDetails',processedJiraList[i]);
 				break;
 			} else {
