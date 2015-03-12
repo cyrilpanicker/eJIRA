@@ -7,16 +7,38 @@ var server;
 var server = app.listen(8000,function () {
 	console.log('server listening at port 8000');
 });
+
+var io = require('socket.io')(server);
+
 app.use(express.static('public'));
 
 var processedJiraList = [];
 var processedMinimalJiraList = [];
 var lastUpdated;
 
-app.get('/jiras',function (req,res) {
-	res.send({
+// app.get('/jiras',function (req,res) {
+// 	res.send({
+// 		lastUpdated : lastUpdated,
+// 		list : processedMinimalJiraList
+// 	});
+// });
+
+io.on('connection',function (socket) {
+	socket.emit('listUpdated',{
 		lastUpdated : lastUpdated,
 		list : processedMinimalJiraList
+	});
+	socket.on('jiraSelected',function (jira) {
+		console.log('jiraSelected '+jira.id);
+		for (var i = processedJiraList.length - 1; i >= 0; i--) {
+			if (processedJiraList[i].id == jira.id) {
+				console.log('jira found '+jira.id);
+				socket.emit('jiraSelectedDetails',processedJiraList[i]);
+				break;
+			} else {
+				
+			} 
+		};
 	});
 });
 
@@ -50,6 +72,10 @@ var delayFiveMins = function () {
 		processedMinimalJiraList = getMinimalList(processedJiraList);
 		console.timeEnd('jiras fetched');
 		lastUpdated = new Date();
+		io.emit('listUpdated',{
+			lastUpdated : lastUpdated,
+			list : processedMinimalJiraList
+		});
 		return delayFiveMins();
 	},function(errorResponse){
 		reject(errorResponse);

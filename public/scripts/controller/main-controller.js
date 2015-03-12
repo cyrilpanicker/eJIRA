@@ -1,20 +1,44 @@
 angular.module('app', ['ui.bootstrap'])
-.factory('jiraService', ['$http', function ($http) {
-	var service = {};
-	service.getJiraList = function () {
-		return $http({
-			method:'GET',
-			url:'/jiras'
-		});
+.factory('socket', function ($rootScope) {
+	var socket = io.connect();
+	return {
+		on: function (eventName, callback) {
+			socket.on(eventName, function () {  
+				var args = arguments;
+				$rootScope.$apply(function () {
+					callback.apply(socket, args);
+				});
+			});
+		},
+		emit: function (eventName, data, callback) {
+			socket.emit(eventName, data, function () {
+				var args = arguments;
+				$rootScope.$apply(function () {
+					if (callback) {
+						callback.apply(socket, args);
+					}
+				});
+			})
+		}
 	};
-	return service;
-}])
-.controller('JiraController', ['$scope','jiraService', function ($scope,jiraService) {
+})
+// .factory('jiraService', ['$http', function ($http) {
+// 	var service = {};
+// 	service.getJiraList = function () {
+// 		return $http({
+// 			method:'GET',
+// 			url:'/jiras'
+// 		});
+// 	};
+// 	return service;
+// }])
+.controller('JiraController', ['$scope','$interval','$modal','socket', function ($scope,$interval,$modal,socket) {
 
 	$scope.list = [];
 	$scope.filteredList = [];
 	$scope.paginatedList = [];
 	$scope.filterQueries={};
+	$scope.selectedJira = {};
 
 	$scope.conditions = [
 		{
@@ -30,8 +54,25 @@ angular.module('app', ['ui.bootstrap'])
 	];
 
 	$scope.filterQueries.notWorkedSinceSign = $scope.conditions[2].value;
+	$scope.lastUpdatedInMinAgo = 0;
 
 	var filterQueue = [];
+
+
+	// jiraService.getJiraList()
+	// .then(function(response){
+	// 	$scope.list = response.data.list;
+	// 	$scope.lastUpdated = new Date(response.data.lastUpdated).toLocaleTimeString();
+	// },function(errorResponse){
+	// 	console.log(errorResponse.data);
+	// });
+
+	socket.on('listUpdated',function (response) {
+		$scope.list = response.list;
+		$scope.lastUpdated = new Date(response.lastUpdated);
+		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.lastUpdated);
+	});
+
 	var addFilter = function(filterName) {
 		if (filterQueue.indexOf(filterName) == -1) {
 			filterQueue.push(filterName);
@@ -196,15 +237,6 @@ angular.module('app', ['ui.bootstrap'])
 		return filteredList;
 	};
 
-
-	jiraService.getJiraList()
-	.then(function(response){
-		$scope.list = response.data.list;
-		$scope.lastUpdated = new Date(response.data.lastUpdated).toLocaleTimeString();
-	},function(errorResponse){
-		console.log(errorResponse.data);
-	});
-
 	var getUniquePropertyValues = function (list,propertyName) {
 		var propertyValues = [];
 		for (var i = list.length - 1; i >= 0; i--) {
@@ -235,7 +267,17 @@ angular.module('app', ['ui.bootstrap'])
 		updatePaginatedList();
 	};
 
+	var getTimeDiffInMin = function (timestamp) {
+		if (timestamp) {
+			var now = new Date().getTime();
+			var then = timestamp.getTime();
+			return Math.floor((now - then)/1000/60);
+		};
+	};
 
+	$interval(function () {
+		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.lastUpdated);
+	},5000);
 
 	$scope.$watch('list', function() {
 		$scope.updateFilteredList();
@@ -260,5 +302,26 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.$watch('paginatedList.currentPage', function(page) {
 		updatePaginatedList(page);
 	});
+
+	socket.on('jiraSelectedDetails',function (jira) {
+		$scope.selectedJira = jira;
+		var modalOptions = {
+			templateUrl : 'jiraDetailsModal.html',
+			scope:$scope,
+			size:'lg',
+			controller:function($scope,$modalInstance) {
+				$scope.back = function () {
+					$modalInstance.close();
+				};
+			}
+		}
+		var modal = $modal.open(modalOptions);
+	});
+
+	$scope.jiraSelected = function (jiraId) {
+		socket.emit('jiraSelected',{
+			id:jiraId
+		});
+	};
 
 }]);

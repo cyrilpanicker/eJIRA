@@ -10,84 +10,88 @@
 	<link rel="stylesheet" type="text/css" href="styles/bootstrap-theme.min.css">
 	<script src="scripts/angular.min.js"></script>
 	<script src="scripts/ui-bootstrap-tpls.min.js"></script>
-	<!--<script src="scripts/socket.io-1.3.4.js"></script>-->
+	<script src="scripts/socket.io-1.3.4.js"></script>
 	<script src="scripts/controller/main-controller.js"></script>
 	<style>
-	.table tbody tr th{
-		/*vertical-align: middle;*/
-	}
-	.table thead tr th{
-		text-align: center;
-		vertical-align: middle;
-	}
-	.container{
-		text-align: center;
-	}
-	.page-header{
-		background-color: #f1f1f1;
-		border-bottom: 1px solid #666;
-		border-color: #e5e5e5;
-		height: 59px;
-		margin-top: 0px;
-		font-size: 30px;
-	}
-	.page-header span{
-		vertical-align: -webkit-baseline-middle;
-		font-weight: bold;
-	}
-	.pagination{
-		margin: 0px;
-	}
-	.right-footer{
-		float: right;
-		padding: 6px 12px;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		color: #337ab7;
-		background-color: #fff;
-		cursor: default;
-		border: 1px solid #ddd;
-		border-color: #ddd;
-		display: inline-block;
-	}
-	.left-footer{
-		float: left;
-		padding: 6px 12px;
-		border: 1px solid #ccc;
-		border-radius: 4px;
-		color: #337ab7;
-		background-color: #fff;
-		cursor: default;
-		border: 1px solid #ddd;
-		border-color: #ddd;
-		display: inline-block;
-	}
-	.filter-issue{
-		width:90px;
-	}
-	.filter-days{
-		width: 110px;
-	}
-	.form-control{
-		padding-left: 5px;
-		padding-right: 5px;
-	}
-	.input-group select.form-control{
-		width: 52px;
-	}
-	.input-group-addon{
-		background-color: white;
-	}
-	.input-group .input-group-addon .form-control{
-		height: 20px;
-		width: 45px;
-		border-top-width: 0px;
-		border-bottom-width: 0px;
-		border-left-width: 0px;
-		border-right-width: 0px;
-		padding: 0px;
-		box-shadow: none;
-	}
+		.modal-backdrop{
+			bottom: 0;
+			position: fixed;
+		}
+		.table tbody tr th{
+			/*vertical-align: middle;*/
+		}
+		.table thead tr th{
+			text-align: center;
+			vertical-align: middle;
+		}
+		.container{
+			text-align: center;
+		}
+		.page-header{
+			background-color: #f1f1f1;
+			border-bottom: 1px solid #666;
+			border-color: #e5e5e5;
+			height: 59px;
+			margin-top: 0px;
+			font-size: 30px;
+		}
+		.page-header span{
+			vertical-align: -webkit-baseline-middle;
+			font-weight: bold;
+		}
+		.pagination{
+			margin: 0px;
+		}
+		.right-footer{
+			float: right;
+			padding: 6px 12px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			color: #337ab7;
+			background-color: #fff;
+			cursor: default;
+			border: 1px solid #ddd;
+			border-color: #ddd;
+			display: inline-block;
+		}
+		.left-footer{
+			float: left;
+			padding: 6px 12px;
+			border: 1px solid #ccc;
+			border-radius: 4px;
+			color: #337ab7;
+			background-color: #fff;
+			cursor: default;
+			border: 1px solid #ddd;
+			border-color: #ddd;
+			display: inline-block;
+		}
+		.filter-issue{
+			width:90px;
+		}
+		.filter-days{
+			width: 110px;
+		}
+		.form-control{
+			padding-left: 5px;
+			padding-right: 5px;
+		}
+		.input-group select.form-control{
+			width: 52px;
+		}
+		.input-group-addon{
+			background-color: white;
+		}
+		.input-group .input-group-addon .form-control{
+			height: 20px;
+			width: 45px;
+			border-top-width: 0px;
+			border-bottom-width: 0px;
+			border-left-width: 0px;
+			border-right-width: 0px;
+			padding: 0px;
+			box-shadow: none;
+		}
 	</style>
 </head>
 <body ng-app="app">
@@ -95,7 +99,7 @@
 		<span>eJIRA</span>
 	</div>
 	<div class="container" ng-controller="JiraController">
-		<table class = "table table-striped table-hover container">
+		<table class = "table table-striped table-hover">
 			<thead>
 				<tr>
 					<th>Issue</th>
@@ -165,13 +169,13 @@
 					<td ng-bind="jira.status"></td>
 					<td ng-bind="jira.component"></td>
 					<td>
-						<button class="btn btn-xs btn-info">Show</button>
+						<button class="btn btn-xs btn-info" ng-click="jiraSelected(jira.id)">Show</button>
 					</td>
 				</tr>
 			</tbody>
 		</table>
-		<div ng-show="list.length" class="container">
-			<div ng-bind-template="Last updated at {{lastUpdated}}" class="left-footer"></div>
+		<div ng-show="list.length">
+			<div ng-bind-template="Last updated {{lastUpdatedInMinAgo}} min(s) ago" class="left-footer"></div>
 			<pagination 
 				boundary-links="true" 
 				total-items="filteredList.length" 
@@ -184,8 +188,19 @@
 				max-size="10">
 			</pagination>
 			<div ng-show="filteredList.length" class="right-footer" ng-bind-template="Showing {{paginatedList.begin+1}} to {{paginatedList.end}} out of {{filteredList.length}}"></div>
-			<div ng-show="!filteredList.length" class="right-footer" ng-bind-template="No match found."></div>
+			<div ng-show="!filteredList.length" class="right-footer" ng-bind-template="No match found"></div>
 		</div>
 	</div>
+	<script type="text/ng-template" id="jiraDetailsModal.html">
+		<div class="modal-header">
+			<h3>{{selectedJira.id}} - {{selectedJira.summary}}</h3>
+		</div>
+		<div class="modal-body">
+			Modal Body <br/>
+		</div>
+		<div class="modal-footer">
+			<button class="btn btn-primary" ng-click="back()">Back</button>
+		</div>
+	</script>
 </body>
 </html>
