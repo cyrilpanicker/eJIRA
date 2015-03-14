@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" ng-app="app">
 <head>
@@ -92,6 +91,9 @@
 			padding: 0px;
 			box-shadow: none;
 		}
+		.filter-applied{
+			border-color: red;
+		}
 	</style>
 </head>
 <body ng-app="app">
@@ -99,7 +101,7 @@
 		<span>eJIRA</span>
 	</div>
 	<div class="container" ng-controller="JiraController">
-		<table class = "table table-striped table-hover">
+		<table ng-form name="table" class = "table table-striped table-hover">
 			<thead>
 				<tr>
 					<th>Issue</th>
@@ -113,15 +115,15 @@
 				</tr>
 				<tr>
 					<td class="filter-issue">
-						<input type="text" ng-model="filterQueries.issue" class="form-control" maxlength="8" placeholder="All" ng-change="onIssueChange()"/>
+						<input name="issueFilter" type="text" ng-model="filterQueries.issue" ng-class="{'form-control' : true,'filter-applied':issueFilterApplied}" maxlength="8" placeholder="All" ng-change="onIssueChange()"/>
 					</td>
 					<td>
-						<select class="form-control" ng-model="filterQueries.assignee" ng-options="assignee as assignee for assignee in assignees | orderBy:assignee" ng-change="onAssigneeChange()">
+						<select name="assigneeFilter" ng-class="{'form-control' : true,'filter-applied':assigneeFilterApplied}" ng-model="filterQueries.assignee" ng-options="assignee as assignee for assignee in assignees | orderBy:assignee" ng-change="onAssigneeChange()">
 							<option value="">All</option>
 						</select>
 					</td>
 					<td>
-						<select class="form-control" ng-model="filterQueries.priority" ng-options="priority for priority in priorities | orderBy:priority" ng-change="onPriorityChange()">
+						<select name="priorityFilter" ng-class="{'form-control' : true,'filter-applied':priorityFilterApplied}" ng-model="filterQueries.priority" ng-options="priority for priority in priorities | orderBy:priority" ng-change="onPriorityChange()">
 							<option value="">All</option>
 						</select>
 					</td>
@@ -139,20 +141,20 @@
 					</td> -->
 					<td class="filter-days">
 						<div class="input-group">
-							<select class="form-control" ng-model="filterQueries.notWorkedSinceSign" ng-options="condition.value as condition.sign for condition in conditions" ng-change="updateFilteredList()">
+							<select ng-class="{'form-control' : true,'filter-applied':notWorkedSinceFilterApplied}" ng-model="filterQueries.notWorkedSinceSign" ng-options="condition.value as condition.sign for condition in conditions" ng-change="updateFilteredList()">
 							</select>
-							<span class="input-group-addon">
-								<input class="form-control" type="number" ng-model="filterQueries.notWorkedSince" placeholder="All" ng-change="onNotWorkedSinceChange()" min="0"/>
+							<span ng-class="{'input-group-addon' : true,'filter-applied':notWorkedSinceFilterApplied}">
+								<input ng-class="{'form-control' : true,'filter-applied':notWorkedSinceFilterApplied}" type="number" name="notWorkedSinceFilter" ng-model="filterQueries.notWorkedSince" placeholder="All" ng-change="onNotWorkedSinceChange()" min="0"/>
 							</span>
 						</div>
 					</td>
 					<td>
-						<select class="form-control" ng-model="filterQueries.status" ng-options="status for status in statuses | orderBy:status" ng-change="onStatusChange()">
+						<select name="statusFilter" ng-class="{'form-control' : true,'filter-applied':statusFilterApplied}" ng-model="filterQueries.status" ng-options="status for status in statuses | orderBy:status" ng-change="onStatusChange()">
 							<option value="">All</option>
 						</select>
 					</td>
 					<td>
-						<select class="form-control" ng-model="filterQueries.component" ng-options="component for component in components | orderBy:component" ng-change="onComponentChange()">
+						<select name="componentFilter" ng-class="{'form-control' : true,'filter-applied':componentFilterApplied}" ng-model="filterQueries.component" ng-options="component for component in components | orderBy:component" ng-change="onComponentChange()">
 							<option value="">All</option>
 						</select>
 					</td>
@@ -161,7 +163,9 @@
 			</thead>
 			<tbody>
 				<tr ng-repeat="jira in paginatedList">
-					<td ng-bind="jira.id"></td>
+					<td>
+						<a class="btn btn-xs btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{jira.id}}" target="_blank">{{jira.id}}</a>
+					</td>
 					<td ng-bind="jira.assignee"></td>
 					<td ng-bind="jira.priority"></td>
 					<!-- <td>7</td> -->
@@ -169,7 +173,7 @@
 					<td ng-bind="jira.status"></td>
 					<td ng-bind="jira.component"></td>
 					<td>
-						<button class="btn btn-xs btn-info" ng-click="jiraSelected(jira.id)">Show</button>
+						<button class="btn btn-xs btn-primary" ng-click="jiraSelected(jira.id)">Show</button>
 					</td>
 				</tr>
 			</tbody>
