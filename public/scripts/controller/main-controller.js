@@ -56,7 +56,7 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.filterQueries.notWorkedSinceSign = $scope.conditions[2].value;
 	$scope.lastUpdatedInMinAgo = 0;
 
-	var filterQueue = [];
+	$scope.filterQueue = [];
 
 
 	// jiraService.getJiraList()
@@ -74,14 +74,14 @@ angular.module('app', ['ui.bootstrap'])
 	});
 
 	var addFilter = function(filterName) {
-		if (filterQueue.indexOf(filterName) == -1) {
-			filterQueue.push(filterName);
+		if ($scope.filterQueue.indexOf(filterName) == -1) {
+			$scope.filterQueue.push(filterName);
 		};
 	};
 	var removeFilter = function(filterName) {
-		for (var i = filterQueue.length - 1; i >= 0; i--) {
-			if (filterQueue[i] == filterName) {
-				filterQueue.splice(i, 1);
+		for (var i = $scope.filterQueue.length - 1; i >= 0; i--) {
+			if ($scope.filterQueue[i] == filterName) {
+				$scope.filterQueue.splice(i, 1);
 				break;
 			};
 		};
@@ -90,8 +90,10 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.onIssueChange = function () {
 		if ($scope.filterQueries.issue == '') {
 			removeFilter('id');
+			$scope.issueFilterApplied = false;
 		} else {
 			addFilter('id');
+			$scope.issueFilterApplied = true;
 		}
 		$scope.updateFilteredList();
 	};
@@ -99,8 +101,10 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.onAssigneeChange = function () {
 		if (!$scope.filterQueries.assignee) {
 			removeFilter('assignee');
+			$scope.assigneeFilterApplied = false;
 		} else {
 			addFilter('assignee');
+			$scope.assigneeFilterApplied = true;
 		}
 		$scope.updateFilteredList();
 	};
@@ -108,8 +112,10 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.onPriorityChange = function () {
 		if (!$scope.filterQueries.priority) {
 			removeFilter('priority');
+			$scope.priorityFilterApplied = false;
 		} else {
 			addFilter('priority');
+			$scope.priorityFilterApplied = true;
 		}
 		$scope.updateFilteredList();
 	};
@@ -117,8 +123,10 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.onNotWorkedSinceChange = function() {
 		if (!angular.isNumber($scope.filterQueries.notWorkedSince)) {
 			removeFilter('notWorkedSince');
+			$scope.notWorkedSinceFilterApplied = false;
 		} else {
 			addFilter('notWorkedSince');
+			$scope.notWorkedSinceFilterApplied = true;
 		}
 		$scope.updateFilteredList();
 	};
@@ -126,8 +134,10 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.onStatusChange = function() {
 		if (!$scope.filterQueries.status) {
 			removeFilter('status');
+			$scope.statusFilterApplied = false;
 		} else {
 			addFilter('status');
+			$scope.statusFilterApplied = true;
 		}
 		$scope.updateFilteredList();
 	};
@@ -135,16 +145,18 @@ angular.module('app', ['ui.bootstrap'])
 	$scope.onComponentChange = function() {
 		if (!$scope.filterQueries.component) {
 			removeFilter('component');
+			$scope.componentFilterApplied = false;
 		} else {
 			addFilter('component');
+			$scope.componentFilterApplied = true;
 		}
 		$scope.updateFilteredList();
 	};
 
 	var getFilteredList = function (list) {
-		if (filterQueue.length) {
-			for (var i = 0; i < filterQueue.length; i++) {
-				switch(filterQueue[i]){
+		if ($scope.filterQueue.length) {
+			for (var i = 0; i < $scope.filterQueue.length; i++) {
+				switch($scope.filterQueue[i]){
 					case 'id': list = filterById(list,$scope.filterQueries.issue);break;
 					case 'assignee' : list = filterByAssignee(list,$scope.filterQueries.assignee);break;
 					case 'priority' : list = filterByPriority(list,$scope.filterQueries.priority);break;
@@ -257,10 +269,10 @@ angular.module('app', ['ui.bootstrap'])
 
 	$scope.updateFilteredList = function () {
 		$scope.filteredList = getFilteredList($scope.list);
-		$scope.assignees = getUniquePropertyValues($scope.filteredList,'assignee');
-		$scope.priorities = getUniquePropertyValues($scope.filteredList,'priority');
-		$scope.statuses = getUniquePropertyValues($scope.filteredList,'status');
-		$scope.components = getUniquePropertyValues($scope.filteredList,'component');
+		// $scope.assignees = getUniquePropertyValues($scope.filteredList,'assignee');
+		// $scope.priorities = getUniquePropertyValues($scope.filteredList,'priority');
+		// $scope.statuses = getUniquePropertyValues($scope.filteredList,'status');
+		// $scope.components = getUniquePropertyValues($scope.filteredList,'component');
 		// if ($scope.filteredList.length < 10) {
 		// 	$scope.paginatedList = $scope.filteredList.slice(0,10);
 		// };
@@ -281,6 +293,10 @@ angular.module('app', ['ui.bootstrap'])
 
 	$scope.$watch('list', function() {
 		$scope.updateFilteredList();
+		$scope.assignees = getUniquePropertyValues($scope.list,'assignee');
+		$scope.priorities = getUniquePropertyValues($scope.list,'priority');
+		$scope.statuses = getUniquePropertyValues($scope.list,'status');
+		$scope.components = getUniquePropertyValues($scope.list,'component');
 	});
 
 	var updatePaginatedList = function (page) {
