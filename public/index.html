@@ -7,8 +7,10 @@
 	<link rel="icon" href="data:;base64,=">
 	<link rel="stylesheet" type="text/css" href="styles/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="styles/bootstrap-theme.min.css">
+	<link rel="stylesheet" type="text/css" href="styles/isteven-multi-select.css">
 	<script src="scripts/angular.min.js"></script>
 	<script src="scripts/ui-bootstrap-tpls.min.js"></script>
+	<script src="scripts/isteven-multi-select.js"></script>
 	<script src="scripts/socket.io-1.3.4.js"></script>
 	<script src="scripts/controller/main-controller.js"></script>
 	<style>
@@ -68,6 +70,9 @@
 		.filter-issue{
 			width:90px;
 		}
+		.filter-assignee{
+			text-align: left;
+		}
 		.filter-days{
 			width: 110px;
 		}
@@ -92,16 +97,17 @@
 			box-shadow: none;
 		}
 		.filter-applied{
-			border-color: red;
+			background-color: red;
+			color: white;
 		}
 	</style>
 </head>
-<body ng-app="app">
+<body>
 	<div class="page-header">
 		<span>eJIRA</span>
 	</div>
 	<div class="container" ng-controller="JiraController">
-		<table ng-form name="table" class = "table table-striped table-hover">
+		<table class = "table table-striped table-hover">
 			<thead>
 				<tr>
 					<th>Issue</th>
@@ -115,14 +121,26 @@
 				</tr>
 				<tr>
 					<td class="filter-issue">
-						<input name="issueFilter" type="text" ng-model="filterQueries.issue" ng-class="{'form-control' : true,'filter-applied':issueFilterApplied}" maxlength="8" placeholder="All" ng-change="onIssueChange()"/>
+						<input type="text" ng-model="filters.issue" ng-class="{'form-control' : true,'filter-applied':filters.issue}" maxlength="8" placeholder="All"/>
 					</td>
-					<td>
-						<select name="assigneeFilter" ng-class="{'form-control' : true,'filter-applied':assigneeFilterApplied}" ng-model="filterQueries.assignee" ng-options="assignee as assignee for assignee in assignees | orderBy:assignee" ng-change="onAssigneeChange()">
-							<option value="">All</option>
-						</select>
+					<td ng-class="{'filter-assignee':true,'filter-applied':filters.assignees.length}">
+						<div
+							isteven-multi-select
+							input-model="assignees"
+							output-model="filters.assignees"
+							button-label="name"
+							item-label="name"
+							tick-property="selected"
+							max-labels="0"
+							helper-elements="none filter"
+							search-property="name"
+							translation="translation"
+							max-height="300px"
+							orientation="horizontal"
+						>
+						</div>
 					</td>
-					<td>
+					<td class="filter-assignee">
 						<select name="priorityFilter" ng-class="{'form-control' : true,'filter-applied':priorityFilterApplied}" ng-model="filterQueries.priority" ng-options="priority for priority in priorities | orderBy:priority" ng-change="onPriorityChange()">
 							<option value="">All</option>
 						</select>
@@ -166,7 +184,7 @@
 					<td>
 						<a class="btn btn-xs btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{jira.id}}" target="_blank">{{jira.id}}</a>
 					</td>
-					<td ng-bind="jira.assignee"></td>
+					<td class="filter-assignee" ng-bind="jira.assignee"></td>
 					<td ng-bind="jira.priority"></td>
 					<!-- <td>7</td> -->
 					<td ng-bind="jira.daysSinceLastWorked"></td>
