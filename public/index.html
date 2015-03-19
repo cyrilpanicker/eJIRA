@@ -70,7 +70,7 @@
 		.filter-issue{
 			width:90px;
 		}
-		.filter-assignee{
+		.left-align{
 			text-align: left;
 		}
 		.filter-days{
@@ -96,9 +96,12 @@
 			padding: 0px;
 			box-shadow: none;
 		}
-		.filter-applied{
+/*		.filter-applied{
 			background-color: red;
 			color: white;
+		}*/
+		.helperButton {
+			width:100%;
 		}
 	</style>
 </head>
@@ -123,7 +126,7 @@
 					<td class="filter-issue">
 						<input type="text" ng-model="filters.issue" ng-class="{'form-control' : true,'filter-applied':filters.issue}" maxlength="8" placeholder="All"/>
 					</td>
-					<td ng-class="{'filter-assignee':true,'filter-applied':filters.assignees.length}">
+					<td ng-class="{'left-align':true,'filter-applied':filters.assignees.length}">
 						<div
 							isteven-multi-select
 							input-model="assignees"
@@ -136,14 +139,25 @@
 							search-property="name"
 							translation="translation"
 							max-height="300px"
-							orientation="horizontal"
+							orientation="vertical"
 						>
 						</div>
 					</td>
-					<td class="filter-assignee">
-						<select name="priorityFilter" ng-class="{'form-control' : true,'filter-applied':priorityFilterApplied}" ng-model="filterQueries.priority" ng-options="priority for priority in priorities | orderBy:priority" ng-change="onPriorityChange()">
-							<option value="">All</option>
-						</select>
+					<td class="left-align">
+						<div
+							isteven-multi-select
+							input-model="priorities"
+							output-model="filters.priorities"
+							button-label="name"
+							item-label="name"
+							tick-property="selected"
+							max-labels="0"
+							helper-elements="none"
+							translation="translation"
+							max-height="150px"
+							orientation="vertical"
+						>
+						</div>
 					</td>
 					<!--<td class="filter-days">
 						<div class="input-group">
@@ -166,15 +180,37 @@
 							</span>
 						</div>
 					</td>
-					<td>
-						<select name="statusFilter" ng-class="{'form-control' : true,'filter-applied':statusFilterApplied}" ng-model="filterQueries.status" ng-options="status for status in statuses | orderBy:status" ng-change="onStatusChange()">
-							<option value="">All</option>
-						</select>
+					<td class="left-align">
+						<div
+							isteven-multi-select
+							input-model="statuses"
+							output-model="filters.statuses"
+							button-label="name"
+							item-label="name"
+							tick-property="selected"
+							max-labels="0"
+							helper-elements="none"
+							translation="translation"
+							max-height="200px"
+							orientation="vertical"
+						>
+						</div>
 					</td>
-					<td>
-						<select name="componentFilter" ng-class="{'form-control' : true,'filter-applied':componentFilterApplied}" ng-model="filterQueries.component" ng-options="component for component in components | orderBy:component" ng-change="onComponentChange()">
-							<option value="">All</option>
-						</select>
+					<td class="left-align">
+						<div
+							isteven-multi-select
+							input-model="components"
+							output-model="filters.components"
+							button-label="name"
+							item-label="name"
+							tick-property="selected"
+							max-labels="0"
+							helper-elements="none"
+							translation="translation"
+							max-height="200px"
+							orientation="vertical"
+						>
+						</div>
 					</td>
 					<td></td>
 				</tr>
@@ -184,7 +220,7 @@
 					<td>
 						<a class="btn btn-xs btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{jira.id}}" target="_blank">{{jira.id}}</a>
 					</td>
-					<td class="filter-assignee" ng-bind="jira.assignee"></td>
+					<td class="left-align" ng-bind="jira.assignee"></td>
 					<td ng-bind="jira.priority"></td>
 					<!-- <td>7</td> -->
 					<td ng-bind="jira.daysSinceLastWorked"></td>
