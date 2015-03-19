@@ -70,14 +70,6 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select'])
 		$scope.updateFilteredList();
 	});
 
-	$scope.$watch('paginatedList.currentPage', function(page) {
-		updatePaginatedList(page);
-	});
-
-	$scope.$watch('filters', function() {
-		$scope.updateFilteredList();
-	}, true);
-
 	var updatePaginatedList = function (page) {
 		if(!page){
 			page = 1;
@@ -116,6 +108,9 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select'])
 		};
 		updatePaginatedList();
 	};
+
+	$scope.$watch('filters', $scope.updateFilteredList, true);
+	$scope.$watch('paginatedList.currentPage', updatePaginatedList);
 
 	var updateDropDowns = function () {
 		$scope.assignees = [];
