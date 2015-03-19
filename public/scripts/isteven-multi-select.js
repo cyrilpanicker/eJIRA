@@ -897,20 +897,20 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
             // icons.. I guess you can use <img> tag here if you want to. 
             var icon        = {};
             icon.selectAll  = '&#10003;'    // a tick icon
-            icon.selectNone = ''     // x icon
+            icon.selectNone = '&times;'     // x icon
             icon.reset      = '&#8630;'     // undo icon
 
             // configurable button labels                       
             if ( typeof attrs.translation !== 'undefined' ) {
                 $scope.lang.selectAll       = $sce.trustAsHtml( icon.selectAll  + '&nbsp;&nbsp;' + $scope.translation.selectAll );
-                $scope.lang.selectNone      = $sce.trustAsHtml( icon.selectNone + '' + $scope.translation.selectNone );
+                $scope.lang.selectNone      = $sce.trustAsHtml( $scope.translation.selectNone );
                 $scope.lang.reset           = $sce.trustAsHtml( icon.reset      + '&nbsp;&nbsp;' + $scope.translation.reset );
                 $scope.lang.search          = $scope.translation.search;                
                 $scope.lang.nothingSelected = $sce.trustAsHtml( $scope.translation.nothingSelected );                
             }
             else {
                 $scope.lang.selectAll       = $sce.trustAsHtml( icon.selectAll  + '&nbsp;&nbsp;Select All' );                
-                $scope.lang.selectNone      = $sce.trustAsHtml( icon.selectNone + 'Select None' );
+                $scope.lang.selectNone      = $sce.trustAsHtml( icon.selectNone + '&nbsp;&nbsp;Select None' );
                 $scope.lang.reset           = $sce.trustAsHtml( icon.reset      + '&nbsp;&nbsp;Reset' );
                 $scope.lang.search          = 'Search...';
                 $scope.lang.nothingSelected = 'None Selected';                
@@ -989,7 +989,7 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
                             'ng-bind-html="lang.selectAll">' +
                         '</button>'+
 
-                        '<button type="button" class="helperButton btn btn-danger btn-sm"' +
+                        '<button type="button" class="helperButton btn btn-primary btn-sm"' +
                             'ng-if="!isDisabled && displayHelper( \'none\' )"' +
                             'ng-click="select( \'none\', $event );"' +
                             'ng-bind-html="lang.selectNone">' +
@@ -1002,7 +1002,7 @@ angular.module( 'isteven-multi-select', ['ng'] ).directive( 'istevenMultiSelect'
                         '</button>' +
                     '</div>' +
 
-                    '<div class="line" style="position:relative" ng-if="displayHelper( \'filter\' )">'+
+                    '<div class="line" style="position:relative" ng-show="displayHelper( \'filter\' )">'+
                                                 
                         '<input placeholder="{{lang.search}}" type="text"' +
                             'ng-click="select( \'filter\', $event )" '+
