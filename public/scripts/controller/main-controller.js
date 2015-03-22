@@ -63,11 +63,40 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select'])
 	$scope.lastUpdatedInMinAgo = 0;
 
 	socket.on('listUpdated',function (response) {
+		console.log('jiras fetched in '+Math.round(response.fetchedIn/1000/60*100)/100+' min');
 		$scope.list = response.list;
 		$scope.lastUpdated = new Date(response.lastUpdated);
 		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.lastUpdated);
 		updateDropDowns();
 		$scope.updateFilteredList();
+	});
+
+	socket.on('jiraSelectedDetails',function (jira) {
+		$scope.selectedJira = jira;
+		if (!jira) {
+			console.log('details were not found for the selected jira');
+		} else {
+			var modalOptions = {
+				templateUrl : 'jiraDetailsModal.html',
+				scope:$scope,
+				size:'lg',
+				controller:function($scope,$modalInstance) {
+					$scope.back = function () {
+						$modalInstance.close();
+					};
+				}
+			}
+			var modal = $modal.open(modalOptions);
+		}
+	});
+
+	socket.on('errorFetchingJiras',function (error) {
+		console.log('error occured while fetching jiras');
+		console.log(error);
+	});
+
+	socket.on('fetchingJiras',function (response) {
+		console.log('fetching jiras after delay of '+Math.round(response.delay/1000/60*100)/100+' min');
 	});
 
 	var updatePaginatedList = function (page) {
@@ -256,21 +285,6 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select'])
 	$interval(function () {
 		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.lastUpdated);
 	},5000);
-
-	socket.on('jiraSelectedDetails',function (jira) {
-		$scope.selectedJira = jira;
-		var modalOptions = {
-			templateUrl : 'jiraDetailsModal.html',
-			scope:$scope,
-			size:'lg',
-			controller:function($scope,$modalInstance) {
-				$scope.back = function () {
-					$modalInstance.close();
-				};
-			}
-		}
-		var modal = $modal.open(modalOptions);
-	});
 
 	$scope.jiraSelected = function (jiraId) {
 		socket.emit('jiraSelected',{
