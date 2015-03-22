@@ -99,6 +99,15 @@
 		.helperButton{
 			width: 100%;
 		}
+		textarea.commentTextBox[readonly]{
+			height: 200px;
+			max-height: 200px;
+  			width: 500px;
+  			max-width: 500px;
+  			resize: none;
+  			cursor: default;
+  			background-color: aliceblue;
+		}
 	</style>
 </head>
 <body>
@@ -243,10 +252,18 @@
 	</div>
 	<script type="text/ng-template" id="jiraDetailsModal.html">
 		<div class="modal-header">
-			<h3>{{selectedJira.id}} - {{selectedJira.summary}}</h3>
+			<alert type="info">
+				<h3>{{selectedJira.id}} - {{selectedJira.summary}}</h3>
+			</alert>
 		</div>
 		<div class="modal-body">
-			Modal Body <br/>
+			<div ng-show="selectedJira.lastComment">
+				<span>Last team member who commented on this JIRA was <strong>{{selectedJira.lastCommentedTeamMember}}</strong> : </span>
+				<textarea readonly class="form-control commentTextBox" ng-model="selectedJira.lastComment"></textarea>
+			</div>
+			<div ng-show="!selectedJira.lastComment">
+				There are no comments by the team on this JIRA.
+			</div>
 		</div>
 		<div class="modal-footer">
 			<button class="btn btn-primary" ng-click="back()">Back</button>
