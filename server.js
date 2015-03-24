@@ -76,7 +76,7 @@ console.log('fetching jiras');
 
 (function loopJiraFetch () {
 	fetchedInStart = new Date().getTime();
-	jiraService.getAllJiras()
+	jiraService.getTestJiras()
 	.then(function(list){
 		processedJiraList = jiraService.processList(list);
 		processedMinimalJiraList = getMinimalList(processedJiraList);

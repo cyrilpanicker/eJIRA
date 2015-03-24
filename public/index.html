@@ -99,14 +99,47 @@
 		.helperButton{
 			width: 100%;
 		}
-		textarea.commentTextBox[readonly]{
+		textarea.form-control[readonly]{
+  			cursor: default;
+  			
+		}
+		textarea.form-control{
+			resize: none;
 			height: 200px;
 			max-height: 200px;
-  			width: 500px;
-  			max-width: 500px;
-  			resize: none;
-  			cursor: default;
-  			background-color: aliceblue;
+  			width: 100%;
+  			max-width: 100%;
+  			/*background-color: #FFF2F2;*/
+		}
+		.custom-modal .modal-dialog.modal-lg .modal-content{
+			width: 100%;
+		}
+		.custom-modal .modal-dialog.modal-lg{
+			width: auto;
+			margin: 30px;
+		}
+		.modal-body .comments{
+			width:33.33%;
+		}
+		.modal-body .notes{
+			width:33.33%;
+		}
+		.modal-body .info{
+			width:32.33%;
+		}
+		.modal-body .section{
+			display: inline-block;
+			vertical-align: top;
+			min-height: 400px;
+			height: 400px;
+			margin: 0px;
+		}
+		.modal-header, .modal-footer, .modal-body{
+			border: none;
+			color: #265a88;
+		}
+		.showButton{
+			width:40px;
 		}
 	</style>
 </head>
@@ -124,7 +157,7 @@
 					<!-- <th>SLA due in (days)</th> -->
 					<th>Not worked since (days)</th>
 					<th>Status</th>
-					<th>Component</th>
+					<!-- <th>Component</th> -->
 					<th></th>
 				</tr>
 				<tr>
@@ -198,7 +231,7 @@
 						>
 						</div>
 					</td>
-					<td class="left-align">
+<!-- 					<td class="left-align">
 						<div
 							isteven-multi-select
 							input-model="components"
@@ -212,8 +245,8 @@
 							max-height="200px"
 						>
 						</div>
-					</td>
-					<td></td>
+					</td> -->
+					<td class="showButton"></td>
 				</tr>
 			</thead>
 			<tbody>
@@ -226,7 +259,7 @@
 					<!-- <td>7</td> -->
 					<td ng-bind="jira.daysSinceLastWorked"></td>
 					<td ng-bind="jira.status"></td>
-					<td ng-bind="jira.component"></td>
+					<!-- <td ng-bind="jira.component"></td> -->
 					<td>
 						<button class="btn btn-xs btn-primary" ng-click="jiraSelected(jira.id)">Show</button>
 					</td>
@@ -252,21 +285,85 @@
 	</div>
 	<script type="text/ng-template" id="jiraDetailsModal.html">
 		<div class="modal-header">
-			<alert type="info">
-				<h3>{{selectedJira.id}} - {{selectedJira.summary}}</h3>
-			</alert>
+			<h3>
+				<a class="btn btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> <strong><span ng-bind="selectedJira.summary"></span></strong>
+			</h3>
 		</div>
 		<div class="modal-body">
-			<div ng-show="selectedJira.lastComment">
-				<span>Last team member who commented on this JIRA was <strong>{{selectedJira.lastCommentedTeamMember}}</strong> : </span>
-				<textarea readonly class="form-control commentTextBox" ng-model="selectedJira.lastComment"></textarea>
+			<div class="info panel panel-primary section">
+				<div class="panel-heading">
+					<strong>Info</strong>
+				</div>
+				<div class="panel-body">
+					<table class="table table-condensed table-striped table-hover">
+						<tr>
+							<th>Created</th>
+							<td ng-bind="selectedJira.created"></td>
+						</tr>
+						<tr>
+							<th>Assigned</th>
+							<td ng-bind="selectedJira.assigned"></td>
+						</tr>
+						<tr>
+							<th>Last Worked</th>
+							<td ng-bind="selectedJira.lastWorked"></td>
+						</tr>
+					</table>
+				</div>
 			</div>
-			<div ng-show="!selectedJira.lastComment">
-				There are no comments by the team on this JIRA.
+			<div class="comments panel panel-primary section">
+				<div class="panel-heading">
+					<strong>Comments</strong>
+				</div>
+				<div ng-show="selectedJira.comments.length" class="panel-body" ng-init="selectedComment = selectedJira.comments.length">
+					<div>
+						by <strong><span ng-bind="selectedJira.comments[selectedComment-1].author"></span></strong><br/>
+						on <strong><span ng-bind ="selectedJira.comments[selectedComment-1].date"></span> </strong>
+					</div><br/>
+					<textarea readonly class="form-control commentTextBox" ng-model="selectedJira.comments[selectedComment-1].text"></textarea><br/>
+					<pagination
+						boundary-links="true" 
+						total-items="selectedJira.comments.length" 
+						ng-model="selectedComment"
+						previous-text="&lsaquo;" 
+						next-text="&rsaquo;" 
+						first-text="&laquo;" 
+						last-text="&raquo;"
+						rotate="false"
+						items-per-page="1"
+						max-size="0">
+					</pagination>
+					<div class="right-footer" ng-bind-template="{{selectedComment}} / {{selectedJira.comments.length}}"></div>
+				</div>
+				<div ng-show="!selectedJira.comments.length" class="panel-body">
+					There are no comments on this JIRA.
+				</div>
+			</div>
+			<div class="notes panel panel-primary section">
+				<div class="panel-heading">
+					<strong>Notes</strong>
+				</div>
+				<div class="panel-body">
+					<div>
+						<strong>Notes saved will not be updated to JIRA.</strong><br/>
+						<strong>These notes will be saved separately.</strong>
+					</div><br/>
+					<textarea ng-change="noteChanged = true" class="form-control" ng-model="selectedJira.notes"></textarea><br/>
+					<button ng-disabled="!noteChanged || !selectedJira.notes" class="btn btn-primary">Save</button>
+					<div class="right-footer" ng-show="!selectedJira.notes">No note found.</div>
+				</div>
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn btn-primary" ng-click="back()">Back</button>
+			<button class="btn btn-danger" ng-click="$close()">Follow Up</button>
+			<button class="btn btn-primary" ng-click="$dismiss()">Back</button>
+		</div>
+	</script>
+	<script type="text/ng-template" id="followUpModal.html">
+		<div class="modal-header">header</div>
+		<div class="modal-body">body</div>
+		<div class="modal-footer">
+			<button class="btn btn-danger" ng-click="$dismiss()">Back</button>
 		</div>
 	</script>
 </body>

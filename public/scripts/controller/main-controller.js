@@ -76,17 +76,23 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select'])
 		if (!jira) {
 			console.log('details were not found for the selected jira');
 		} else {
-			var modalOptions = {
+			var detailsModal;
+			var followUpModal;
+			var detailsModalOptions = {
 				templateUrl : 'jiraDetailsModal.html',
 				scope:$scope,
 				size:'lg',
-				controller:function($scope,$modalInstance) {
-					$scope.back = function () {
-						$modalInstance.close();
-					};
-				}
+				windowClass : 'custom-modal'
 			}
-			var modal = $modal.open(modalOptions);
+			var followUpModalOptions = {
+				templateUrl : 'followUpModal.html',
+				scope : $scope,
+				size : 'lg'
+			};
+			detailsModal = $modal.open(detailsModalOptions);
+			detailsModal.result.then(function (){
+				followUpModal = $modal.open(followUpModalOptions);
+			});
 		}
 	});
 
