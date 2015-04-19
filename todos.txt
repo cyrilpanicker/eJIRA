@@ -1,0 +1,12 @@
+-(done)fix bug with "idle since" attribute
+-(done)implement "due in" attribute
+-implement worked by
+-save and retrieve notes
+-show issues from logged-in assignee on refresh or on login
+-(partly-done)timeline
+-automatic email followups
+-access control
+-edit query access for admins
+-admin acces for manual email followups
+-admin access to enable disable email followups
+-close button for multi-select dropdown

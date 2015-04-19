@@ -1,0 +1,8 @@
+{
+	"priorityClause":"Priority in (P1, P2) AND ",
+	"sla":{
+		"P1":1,
+		"BP":7,
+		"P2":14
+	}
+}

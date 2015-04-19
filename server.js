@@ -1,16 +1,107 @@
-var express = require('express');
-var jiraService = require('./jiraService');
-var Promise = require('bluebird');
+var express = require('express'),
+jiraService = require('./jiraService'),
+Promise = require('bluebird'),
+passport = require('passport'),
+bodyParser = require('body-parser'),
+session = require('express-session'),
+cookieParser = require('cookie-parser'),
+cookie = require('cookie'),
+MongoStore = require('connect-mongo')(session),
+LocalStrategy = require('passport-local').Strategy,
+LdapStrategy = require('passport-ldapauth');
+
+var ldapOptions = {
+	server: {
+		url: 'ldap://glbdirqr.global.us.shldcorp.com:389',
+		searchBase: 'ou=people,o=intra,dc=sears,dc=com',
+		searchFilter: '(uid={{username}})',
+		usernameField:'uid',
+		passwordField:'userPassword'
+	}
+};
+ 
+var sessionStore = new MongoStore({
+	host:'localhost',
+	port:'27017',
+	db:'ejira'
+});
+ 
+var sessionOptions = {
+	secret: 'sacred feminine',
+	saveUninitialized: true,
+	resave: false,
+	store: sessionStore,
+	cookie : {
+		httpOnly: true,
+		maxAge: 86400000
+	}
+}
+
 var app=express();
-var server;
+app.use(express.static('public'));
+app.use(cookieParser());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+app.use(session(sessionOptions));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LdapStrategy(ldapOptions));
+passport.serializeUser(function (user,done) {
+	done(null,{
+		userName : user.uid,
+		name : user.cn,
+		emailId : user.mail
+	});
+});
+passport.deserializeUser(function (user,done) {
+	return done(null,user);
+});
+
+app.post('/login',function (req,res,next) {
+	passport.authenticate('ldapauth',{session:true},function (err,user,info) {
+		if (err) {
+			res.status(500).send({message:'Ldap Connection Error'});
+		} else if (!user) {
+			res.status(403).send(info);
+		} else {
+			req.logIn(user,function (err) {
+				if (err) {
+					res.status(500).send({message:'Session Error'});
+				} else {
+					res.send({
+						userName : user.uid,
+						name : user.cn,
+						emailId : user.mail
+					});
+				}
+			});
+		}
+	})(req,res,next);
+});
+
+app.post('/logout',function (req,res) {
+	if (!req.user) {
+		res.status(409).send('user-not-signed-in');
+	} else {
+		req.logout();
+		res.send({message:'user-signed-out'});
+	}
+});
+
+app.get('/user',function (req,res,next) {
+	if (!req.user) {
+		res.send({});
+	} else {
+		res.send(req.user);
+	}
+})
 
 var server = app.listen(8000,function () {
 	console.log('server listening at port 8000');
 });
 
 var io = require('socket.io')(server);
-
-app.use(express.static('public'));
 
 var processedJiraList = [];
 var processedMinimalJiraList = [];
@@ -71,12 +162,11 @@ var delayTwoMins = function () {
 	});
 };
 
-
 console.log('fetching jiras');
 
 (function loopJiraFetch () {
 	fetchedInStart = new Date().getTime();
-	jiraService.getTestJiras()
+	jiraService.getAllJiras()
 	.then(function(list){
 		processedJiraList = jiraService.processList(list);
 		processedMinimalJiraList = getMinimalList(processedJiraList);

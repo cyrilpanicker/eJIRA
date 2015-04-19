@@ -8,10 +8,13 @@
 	<link rel="stylesheet" type="text/css" href="styles/bootstrap.min.css">
 	<link rel="stylesheet" type="text/css" href="styles/bootstrap-theme.min.css">
 	<link rel="stylesheet" type="text/css" href="styles/isteven-multi-select.css">
+	<link rel="stylesheet" type="text/css" href="styles/timeline.css">
 	<script src="scripts/angular.min.js"></script>
 	<script src="scripts/ui-bootstrap-tpls.min.js"></script>
 	<script src="scripts/isteven-multi-select.js"></script>
 	<script src="scripts/socket.io-1.3.4.js"></script>
+	<script src="scripts/timeline-min.js"></script>
+	<script src="scripts/timeline.js"></script>
 	<script src="scripts/controller/main-controller.js"></script>
 	<style>
 		.modal-backdrop{
@@ -27,6 +30,7 @@
 		}
 		.container{
 			text-align: center;
+			height: 100%;
 		}
 		.page-header{
 			background-color: #f1f1f1;
@@ -35,10 +39,6 @@
 			height: 59px;
 			margin-top: 0px;
 			font-size: 30px;
-		}
-		.page-header span{
-			vertical-align: -webkit-baseline-middle;
-			font-weight: bold;
 		}
 		.pagination{
 			margin: 0px;
@@ -100,16 +100,16 @@
 			width: 100%;
 		}
 		textarea.form-control[readonly]{
-  			cursor: default;
-  			
+			cursor: default;
+
 		}
 		textarea.form-control{
 			resize: none;
 			height: 200px;
 			max-height: 200px;
-  			width: 100%;
-  			max-width: 100%;
-  			/*background-color: #FFF2F2;*/
+			width: 100%;
+			max-width: 100%;
+			/*background-color: #FFF2F2;*/
 		}
 		.custom-modal .modal-dialog.modal-lg .modal-content{
 			width: 100%;
@@ -141,21 +141,85 @@
 		.showButton{
 			width:40px;
 		}
+		.push-left{
+			float: left;
+		}
+		.push-right{
+			float: right;
+		}
+		span.login-image{
+			background-image: url('/images/passport.png');
+			background-repeat: no-repeat;
+			background-position: left top;
+			background-size: 18px;
+			height: 30px;
+			/*width: 80px;*/
+			display: inline-block;
+			/*text-align: right;*/
+			font-size: 13px;
+			font-weight: normal;
+			color: black;
+		}
+		span.login-image .caret{
+			vertical-align: middle;
+		}
+		.profile-img {
+			width: 96px;
+			height: 96px;
+			margin: 0 auto 10px;
+			display: block;
+			-moz-border-radius: 50%;
+			-webkit-border-radius: 50%;
+			border-radius: 50%;
+		}
+		div.redEvent{
+			background-color: #FF7F6E;
+			border-color: #FF7F6E;
+		}
+		div.yellowEvent{
+			background-color: #F7FA7A;
+			border-color: #AF70FF;
+		}
 	</style>
 </head>
-<body>
+<body ng-controller="JiraController">
 	<div class="page-header">
-		<span>eJIRA</span>
+		<div class="container">
+			<span class="push-left">JIRA Dash</span>
+			<div class="push-right">
+				<span class="dropdown" dropdown on-toggle="">
+					<a href class="dropdown-toggle" dropdown-toggle>
+						<span class="login-image">
+							<span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+							<span ng-hide="user.userName">Guest</span>
+							<span ng-show="user.userName" ng-bind="user.name"></span>
+							<span class="caret"></span>
+						</span>
+					</a>
+					<ul class="dropdown-menu">
+						<li ng-hide="user.userName">
+							<a href="" ng-click="showLoginModal()">Login</a>
+						</li>
+						<li ng-show="user.userName">
+							<a href="" ng-click="logout()">Logout</a>
+						</li>
+						<li>
+							<a href="">Settings</a>
+						</li>
+					</ul>
+				</span>
+			</div>
+		</div>
 	</div>
-	<div class="container" ng-controller="JiraController">
+	<div class="container">
 		<table class = "table table-striped table-hover">
 			<thead>
 				<tr>
 					<th>Issue</th>
 					<th>Assignee</th>
 					<th>Priority</th>
-					<!-- <th>SLA due in (days)</th> -->
-					<th>Not worked since (days)</th>
+					<th>SLA due in (days)</th>
+					<th>Idle since (days)</th>
 					<th>Status</th>
 					<!-- <th>Component</th> -->
 					<th></th>
@@ -166,83 +230,80 @@
 					</td>
 					<td ng-class="{'left-align':true,'filter-applied':filters.assignees.length}">
 						<div
-							isteven-multi-select
-							input-model="assignees"
-							output-model="filters.assignees"
-							button-label="name"
-							item-label="name"
-							tick-property="selected"
-							max-labels="0"
-							helper-elements="none filter"
-							search-property="name"
-							translation="translation"
-							max-height="300px"
+						isteven-multi-select
+						input-model="assignees"
+						output-model="filters.assignees"
+						button-label="name"
+						item-label="name"
+						tick-property="selected"
+						max-labels="0"
+						helper-elements="none filter"
+						search-property="name"
+						translation="translation"
+						max-height="300px"
 						>
 						</div>
 					</td>
 					<td class="left-align">
 						<div
-							isteven-multi-select
-							input-model="priorities"
-							output-model="filters.priorities"
-							button-label="name"
-							item-label="name"
-							tick-property="selected"
-							max-labels="0"
-							helper-elements="none"
-							translation="translation"
-							max-height="150px"
+						isteven-multi-select
+						input-model="priorities"
+						output-model="filters.priorities"
+						button-label="name"
+						item-label="name"
+						tick-property="selected"
+						max-labels="0"
+						helper-elements="none"
+						translation="translation"
+						max-height="150px"
 						>
 						</div>
 					</td>
-					<!--<td class="filter-days">
-						<div class="input-group">
-							<select class="form-control" ng-model="list.filterQueries.dueInSign" selected="<=">
-								<option ng-selected="true" value="<=">&lt;=</option>
-								<option value=">=">&gt;=</option>
-								<option value="=">=</option>
-							</select>
-							<span class="input-group-addon">
-								<input class="form-control" type="number" ng-model="list.filterQueries.dueIn" placeholder="All"/>
-							</span>
-						</div>
-					</td> -->
 					<td class="filter-days">
 						<div class="input-group">
-							<select ng-class="{'form-control' : true,'filter-applied':notWorkedSinceFilterApplied}" ng-model="filters.notWorkedSinceSign" ng-options="condition.value as condition.sign for condition in conditions" ng-change="updateFilteredList()">
+							<select class="form-control" ng-model="filters.slaDueInSign" ng-options="condition.value as condition.sign for condition in conditions">
 							</select>
-							<span ng-class="{'input-group-addon' : true,'filter-applied':notWorkedSinceFilterApplied}">
-								<input ng-class="{'form-control' : true,'filter-applied':notWorkedSinceFilterApplied}" type="number" name="notWorkedSinceFilter" ng-model="filters.notWorkedSince" placeholder="All" ng-change="onNotWorkedSinceChange()" min="0"/>
+							<span class="input-group-addon">
+								<input class="form-control" type="number" name="slaDueInFilter" ng-model="filters.slaDueIn" placeholder="All"/>
+							</span>
+						</div>
+					</td>
+					<td class="filter-days">
+						<div class="input-group">
+							<select class="form-control" ng-model="filters.idleSinceSign" ng-options="condition.value as condition.sign for condition in conditions">
+							</select>
+							<span class="input-group-addon">
+								<input class="form-control" type="number" name="idleSinceFilter" ng-model="filters.idleSince" placeholder="All" min="0"/>
 							</span>
 						</div>
 					</td>
 					<td class="left-align">
 						<div
-							isteven-multi-select
-							input-model="statuses"
-							output-model="filters.statuses"
-							button-label="name"
-							item-label="name"
-							tick-property="selected"
-							max-labels="0"
-							helper-elements="none"
-							translation="translation"
-							max-height="200px"
+						isteven-multi-select
+						input-model="statuses"
+						output-model="filters.statuses"
+						button-label="name"
+						item-label="name"
+						tick-property="selected"
+						max-labels="0"
+						helper-elements="none"
+						translation="translation"
+						max-height="200px"
 						>
 						</div>
 					</td>
-<!-- 					<td class="left-align">
+					<!-- <td class="left-align">
 						<div
-							isteven-multi-select
-							input-model="components"
-							output-model="filters.components"
-							button-label="name"
-							item-label="name"
-							tick-property="selected"
-							max-labels="0"
-							helper-elements="none"
-							translation="translation"
-							max-height="200px"
+						isteven-multi-select
+						input-model="components"
+						output-model="filters.components"
+						button-label="name"
+						item-label="name"
+						tick-property="selected"
+						max-labels="0"
+						helper-elements="none"
+						translation="translation"
+						max-height="200px"
 						>
 						</div>
 					</td> -->
@@ -256,7 +317,7 @@
 					</td>
 					<td class="left-align" ng-bind="jira.assignee"></td>
 					<td ng-bind="jira.priority"></td>
-					<!-- <td>7</td> -->
+					<td ng-bind="jira.slaDueIn"></td>
 					<td ng-bind="jira.daysSinceLastWorked"></td>
 					<td ng-bind="jira.status"></td>
 					<!-- <td ng-bind="jira.component"></td> -->
@@ -268,13 +329,13 @@
 		</table>
 		<div ng-show="list.length">
 			<div ng-bind-template="Last updated {{lastUpdatedInMinAgo}} min(s) ago" class="left-footer"></div>
-			<pagination 
-				boundary-links="true" 
-				total-items="filteredList.length" 
+			<pagination
+				boundary-links="true"
+				total-items="filteredList.length"
 				ng-model="paginatedList.currentPage"
-				previous-text="&lsaquo;" 
-				next-text="&rsaquo;" 
-				first-text="&laquo;" 
+				previous-text="&lsaquo;"
+				next-text="&rsaquo;"
+				first-text="&laquo;"
 				last-text="&raquo;"
 				rotate="false"
 				max-size="10">
@@ -286,7 +347,8 @@
 	<script type="text/ng-template" id="jiraDetailsModal.html">
 		<div class="modal-header">
 			<h3>
-				<a class="btn btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> <strong><span ng-bind="selectedJira.summary"></span></strong>
+				<a class="btn btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> 
+				<strong><span ng-bind="selectedJira.summary"></span></strong>
 			</h3>
 		</div>
 		<div class="modal-body">
@@ -297,15 +359,25 @@
 				<div class="panel-body">
 					<table class="table table-condensed table-striped table-hover">
 						<tr>
-							<th>Created</th>
+							<th>Created Date</th>
 							<td ng-bind="selectedJira.created"></td>
 						</tr>
+						<tr ng-show="selectedJira.slaDueDate">
+							<th>SLA Due Date</th>
+							<td ng-bind="selectedJira.slaDueDate"></td>
+						</tr>
+						<tr ng-show="selectedJira.slaDueDate">
+							<th ng-show="!selectedJira.slaDueIn.overdue">SLA Due In</th>
+							<th ng-show="selectedJira.slaDueIn.overdue">SLA Overdue By</th>
+							<td ng-bind="getDueInStatement(selectedJira.slaDueIn)">
+							</td>
+						</tr>
 						<tr>
-							<th>Assigned</th>
+							<th>Assigned Date</th>
 							<td ng-bind="selectedJira.assigned"></td>
 						</tr>
 						<tr>
-							<th>Last Worked</th>
+							<th>Last Worked Date</th>
 							<td ng-bind="selectedJira.lastWorked"></td>
 						</tr>
 					</table>
@@ -322,12 +394,12 @@
 					</div><br/>
 					<textarea readonly class="form-control commentTextBox" ng-model="selectedJira.comments[selectedComment-1].text"></textarea><br/>
 					<pagination
-						boundary-links="true" 
-						total-items="selectedJira.comments.length" 
+						boundary-links="true"
+						total-items="selectedJira.comments.length"
 						ng-model="selectedComment"
-						previous-text="&lsaquo;" 
-						next-text="&rsaquo;" 
-						first-text="&laquo;" 
+						previous-text="&lsaquo;"
+						next-text="&rsaquo;"
+						first-text="&laquo;"
 						last-text="&raquo;"
 						rotate="false"
 						items-per-page="1"
@@ -355,7 +427,7 @@
 			</div>
 		</div>
 		<div class="modal-footer">
-			<button class="btn btn-danger" ng-click="$close()">Follow Up</button>
+			<button class="btn btn-danger" ng-click="$close()" ng-disabled="!user.userName" >Follow Up</button>
 			<button class="btn btn-primary" ng-click="$dismiss()">Back</button>
 		</div>
 	</script>
@@ -364,6 +436,63 @@
 		<div class="modal-body">body</div>
 		<div class="modal-footer">
 			<button class="btn btn-danger" ng-click="$dismiss()">Back</button>
+		</div>
+	</script>
+	<script type="text/ng-template" id="loginModal.html">
+		<!-- <div class="modal-header">header</div> -->
+		<div class="modal-body">
+			<form role="form" name="loginForm" novalidate ng-submit="login()">
+				<fieldset>
+					<div class="row">
+						<div class="center-block">
+							<img class="profile-img" src="images/photo.png">
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-12">
+							<div class="form-group">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="glyphicon glyphicon-user"></i>
+									</span>
+									<input class="form-control" placeholder="Username" type="text" ng-model="formUser.username" ng-required="true" autofocus />
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="input-group">
+									<span class="input-group-addon">
+										<i class="glyphicon glyphicon-lock"></i>
+									</span>
+									<input class="form-control" placeholder="Password" type="password" ng-model="formUser.password" ng-required="true" />
+								</div>
+							</div>
+							<div class="form-group">
+								<button class="btn btn-lg btn-primary btn-block" ng-disabled="loginForm.$invalid" type="submit" >Log In</button>
+							</div>
+						</div>
+					</div>
+				</fieldset>
+			</form>
+		</div>
+		<div class="modal-footer">
+			<span ng-bind="loginError"></span>
+		</div>
+	</script>
+	<script type="text/ng-template" id="timelineModal.html">
+		<div class="modal-header">
+			<h3>
+				<a class="btn btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> 
+				<strong><span ng-bind="selectedJira.summary"></span></strong>
+			</h3>
+		</div>
+		<div class="modal-body" timeline="timelineEvents" timeline-selection="selectedEvent"></div>
+		<div class="modal-footer">
+			<div class="checkbox pull-left">
+				<label>
+					<input type="checkbox" ng-model="timelineModalVariables.includeCommentsInTimeline" /> Show comments in timeline
+				</label>
+			</div>
+			<button class="btn btn-primary" ng-click="$close()">Back</button>
 		</div>
 	</script>
 </body>
