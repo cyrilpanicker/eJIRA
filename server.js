@@ -142,6 +142,9 @@ var getMinimalList = function (list) {
 		minimalList[i].assignee = list[i].assignee.name;
 		minimalList[i].component = list[i].components[0];
 		minimalList[i].daysSinceLastWorked = list[i].daysSinceLastWorked;
+		if (list[i].slaDueIn) {
+			minimalList[i].slaDueIn = list[i].slaDueIn.signedDays;
+		}
 	};
 	return minimalList;
 };

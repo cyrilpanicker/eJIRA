@@ -2,6 +2,7 @@ var request = require('request');
 var Promise = require('bluebird');
 var config = require('./config.json');
 var sample = require('./out.json');
+// var fs = require('fs');
 
 var milliSecsInADay = 86400000;
 
@@ -101,6 +102,12 @@ var getAllJiras = function () {
 		for (var i = 0; i < _jiras.length; i++) {
 			jiras = jiras.concat(_jiras[i]);
 		};
+		// fs.writeFile('out.json',JSON.stringify(jiras, null, 4),function (err) {
+		// 	if (err) {
+		// 		console.log('error : '+err);
+		// 	}
+		// 	console.log('file saved');
+		// });
 		return Promise.resolve(jiras);
 	},function(errorResponse){
 		return Promise.reject(errorResponse);
@@ -109,7 +116,7 @@ var getAllJiras = function () {
 
 var getTestJiras = function() {
 	return new Promise(function (resolve,reject) {
-		resolve(sample.issues);
+		resolve(sample);
 	});
 };
 
