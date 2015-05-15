@@ -7,19 +7,7 @@ cookieParser = require('cookie-parser'),
 cookie = require('cookie'),
 MongoStore = require('connect-mongo')(session),
 LocalStrategy = require('passport-local').Strategy,
-
-LdapStrategy = require('passport-ldapauth');
-
-var ldapOptions = {
-	server: {
-		url: 'ldap://glbdirqr.global.us.shldcorp.com:389',
-		searchBase: 'ou=people,o=intra,dc=sears,dc=com',
-		searchFilter: '(uid={{username}})',
-		usernameField:'uid',
-		passwordField:'userPassword'
-	}
-};
-
+testJiraService = require('./testJiraService'),
 jiraService = require('./jiraService');
  
 var sessionStore = new MongoStore({
@@ -217,7 +205,7 @@ console.log('fetching jiras');
 
 (function loopJiraFetch () {
 	fetchedInStart = new Date().getTime();
-	jiraService.getTestJiras()
+	testJiraService.getAllJiras()
 	.then(function(list){
 		processedJiraList = jiraService.processList(list);
 		processedMinimalJiraList = getMinimalList(processedJiraList);

@@ -1,14 +1,15 @@
 var request = require('request');
 var Promise = require('bluebird');
 var config = require('./config.json');
-var sample = require('./out.json');
-// var fs = require('fs');
 
 var milliSecsInADay = 86400000;
 
-var allJiraQuery = "Project = SG AND Type = Bug AND 'Defect Environment' = Production AND Status not in (Resolved, Verified, Closed) AND assignee in (USP_SAL_IRS_SUPPORT, USP_UC_UP_SUPPORT, ShopSears_Support, MobileAppSupport, danand1, mmohan1, aatla0, bsingh6, PTHANKA, amuthiy, RDEV1, rasthan, bdutta0, MKUMAR5, rveedu, abaner2, DPANT, ddevara, rmeena, abhatt1, skandiy, akalimu, gsundha, mmohan2, pmancha, srajesw, ntreesa, pwilso4, smishr0, amanog0, Kpalan0, srajama, schand3, vmuthus, nmathe1, kramakr, rjacob0, rthanka, vvenka2, rthanka, ssiraju, nthom18, aabrah8, vmeruva) AND ('Sub Project' in ('ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects') OR 'Sub Project' in ('ShopSears 2.0', 'ShopSears Lite_UC', 'ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects', 'Mobile 6.x', 'Core Mobile Services', 'Service Abstraction Layer', FindItCenter, 'In Store Kiosk') AND component in (USP_VAULT, USP_URS, USP_UAS, USP_SAL, USP_UC, USP_UPAS, USP_OMS, 'Print Receipt', USP_UP, USP_PV, USP_SAL_Cart, USP_Shipping, RDM, USP_IRS))";
-var team = ['USP_SAL_IRS_SUPPORT','USP_UC_UP_SUPPORT','ShopSears_Support','MobileAppSupport','danand1','mmohan1','aatla0','bsingh6','PTHANKA','amuthiy','RDEV1','rasthan','bdutta0','MKUMAR5','rveedu','abaner2','DPANT','ddevara','rmeena','abhatt1','skandiy','akalimu','gsundha','mmohan2','pmancha','srajesw','ntreesa','pwilso4','smishr0','amanog0','Kpalan0','srajama','schand3','vmuthus','nmathe1','kramakr','rjacob0','rthanka','vvenka2','rthanka','ssiraju','nthom18','aabrah8','vmeruva'];
-var orderByClause = ' ORDER BY priority DESC, createdDate ASC';
+var allJiraQuery = 'assignee in ('+config.team.join(',')+')'
+	+' AND '+config.query
+	+' AND Priority in ('+config.priorities.join(',')+')';
+var searchUri = config.jiraServer + config.searchApi;
+
+var team = config.team;
 
 var isTeamMember = function (member) {
 	var teamMember = false;
@@ -25,12 +26,12 @@ var getJiraCount = function () {
 		request({
 			method:'GET',
 			useQuerystring:true,
-			uri:'https://obujira.searshc.com/jira/rest/api/2/search',
+			uri:searchUri,
 			qs:{
 				fields:["key"],
 				startAt:0,
 				maxResults:1,
-				jql:config.priorityClause + allJiraQuery + orderByClause
+				jql:allJiraQuery
 			}
 		},function (error,response,body) {
 			if (error) {
@@ -47,12 +48,12 @@ var getJiras = function (options) {
 		request({
 			method:'GET',
 			useQuerystring:true,
-			uri:'https://obujira.searshc.com/jira/rest/api/2/search',
+			uri:searchUri,
 			qs:{
 				fields:["key","summary","priority","assignee","status","created","customfield_10143","components","labels","customfield_10024","comment"],
 				startAt:(options && options.startAt) || 0,
 				maxResults:(options && options.maxResults) || 1,
-				jql:config.priorityClause + allJiraQuery + orderByClause,
+				jql:allJiraQuery,
 				expand:'changelog'
 			}
 		},function (error,response,body) {
@@ -102,21 +103,9 @@ var getAllJiras = function () {
 		for (var i = 0; i < _jiras.length; i++) {
 			jiras = jiras.concat(_jiras[i]);
 		};
-		// fs.writeFile('out.json',JSON.stringify(jiras, null, 4),function (err) {
-		// 	if (err) {
-		// 		console.log('error : '+err);
-		// 	}
-		// 	console.log('file saved');
-		// });
 		return Promise.resolve(jiras);
 	},function(errorResponse){
 		return Promise.reject(errorResponse);
-	});
-};
-
-var getTestJiras = function() {
-	return new Promise(function (resolve,reject) {
-		resolve(sample);
 	});
 };
 
@@ -323,10 +312,27 @@ var processList = function (list) {
 	return processedList;
 };
 
+var getMinimalList = function (list) {
+	var minimalList=[];
+	for (var i = list.length - 1; i >= 0; i--) {
+		minimalList[i] = {};
+		minimalList[i].id = list[i].id;
+		minimalList[i].status = list[i].status;
+		minimalList[i].priority = list[i].priority;
+		minimalList[i].assignee = list[i].assignee.name;
+		minimalList[i].component = list[i].components[0];
+		minimalList[i].daysSinceLastWorked = list[i].daysSinceLastWorked;
+		if (list[i].slaDueIn) {
+			minimalList[i].slaDueIn = list[i].slaDueIn.signedDays;
+		}
+	};
+	return minimalList;
+};
+
 module.exports={
 	getJiraCount:getJiraCount,
 	getJiras:getJiras,
 	getAllJiras:getAllJiras,
 	processList:processList,
-	getTestJiras:getTestJiras
+	getMinimalList:getMinimalList
 };
