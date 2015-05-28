@@ -43,6 +43,15 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 			url:'/user'
 		});
 	};
+	service.getJiraDetails=function (id) {
+		return $http({
+			method:'GET',
+			url:'/jira',
+			params:{
+				id:id
+			}
+		});
+	};
 	return service;
 }])
 .controller('JiraController', ['$scope','$interval','$modal','socket','restService', function ($scope,$interval,$modal,socket,restService) {
@@ -102,10 +111,10 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 	});
 	
 	socket.on('listUpdated',function (response) {
-		console.log('jiras fetched in '+Math.round(response.fetchedIn/1000/60*100)/100+' min');
-		$scope.list = response.list;
-		$scope.lastUpdated = new Date(response.lastUpdated);
-		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.lastUpdated);
+		console.log('jiras fetched in '+Math.round(response.listFetchedIn/1000/60*100)/100+' min');
+		$scope.list = response.processedMinimalList;
+		$scope.lastUpdated = new Date(response.listLastUpdated);
+		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.listLastUpdated);
 		updateDropDowns();
 		$scope.updateFilteredList();
 	});
@@ -173,43 +182,6 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		}
 		return events
 	};
-	
-	socket.on('jiraSelectedDetails',function (jira) {
-		$scope.selectedJira = jira;
-		if (!jira) {
-			console.log('details were not found for the selected jira');
-		} else {
-			var timelineModal;
-			// var detailsModal;
-			// var followUpModal;
-			// var detailsModalOptions = {
-			// 	templateUrl : 'jiraDetailsModal.html',
-			// 	scope:$scope,
-			// 	size:'lg',
-			// 	windowClass : 'custom-modal'
-			// }
-			// var followUpModalOptions = {
-			// 	templateUrl : 'followUpModal.html',
-			// 	scope : $scope,
-			// 	size : 'lg'
-			// };
-			// detailsModal = $modal.open(detailsModalOptions);
-			// detailsModal.result.then(function (){
-			// 	followUpModal = $modal.open(followUpModalOptions);
-			// });
-			$scope.timelineEvents = getTimelineEvents();
-			var timelineModalOptions = {
-				templateUrl : 'timelineModal.html',
-				scope:$scope,
-				size:'lg',
-				windowClass : 'custom-modal'
-			}
-			timelineModal = $modal.open(timelineModalOptions);
-			timelineModal.result.finally(function () {
-				$scope.timelineModalVariables.includeCommentsInTimeline = false;
-			});
-		}
-	});
 
 	$scope.selectedEvent = {};
 	
@@ -377,21 +349,21 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		switch(sign){
 			case 'equals':
 			for (var i = 0; i < list.length; i++) {
-				if (list[i].daysSinceLastWorked == days) {
+				if (list[i].idleSince == days) {
 					filteredList.push(list[i]);
 				};
 			};
 			break;
 			case 'lessThanEquals':
 			for (var i = 0; i < list.length; i++) {
-				if (list[i].daysSinceLastWorked <= days) {
+				if (list[i].idleSince <= days) {
 					filteredList.push(list[i]);
 				};
 			};
 			break;
 			case 'greaterThanEquals':
 			for (var i = 0; i < list.length; i++) {
-				if (list[i].daysSinceLastWorked >= days) {
+				if (list[i].idleSince >= days) {
 					filteredList.push(list[i]);
 				};
 			};
@@ -441,8 +413,40 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 	},5000);
 	
 	$scope.jiraSelected = function (jiraId) {
-		socket.emit('jiraSelected',{
-			id:jiraId
+		restService.getJiraDetails(jiraId)
+		.then(function (response) {
+			$scope.selectedJira = response.data;
+			var timelineModal;
+			// var detailsModal;
+			// var followUpModal;
+			// var detailsModalOptions = {
+			// 	templateUrl : 'jiraDetailsModal.html',
+			// 	scope:$scope,
+			// 	size:'lg',
+			// 	windowClass : 'custom-modal'
+			// }
+			// var followUpModalOptions = {
+			// 	templateUrl : 'followUpModal.html',
+			// 	scope : $scope,
+			// 	size : 'lg'
+			// };
+			// detailsModal = $modal.open(detailsModalOptions);
+			// detailsModal.result.then(function (){
+			// 	followUpModal = $modal.open(followUpModalOptions);
+			// });
+			$scope.timelineEvents = getTimelineEvents();
+			var timelineModalOptions = {
+				templateUrl : 'timelineModal.html',
+				scope:$scope,
+				size:'lg',
+				windowClass : 'custom-modal'
+			}
+			timelineModal = $modal.open(timelineModalOptions);
+			timelineModal.result.finally(function () {
+				$scope.timelineModalVariables.includeCommentsInTimeline = false;
+			});
+		},function () {
+			console.log('details were not found for the selected jira');
 		});
 	};
 

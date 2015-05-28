@@ -11,6 +11,10 @@
 	"milliseconds":{
 		"day":86400000
 	},
+	"server":{
+		"port":8000
+	},
+	"server-event-key" : "there-is-no-secret",
 	"session":{
 		"dbParameters":{
 			"host":"localhost",
