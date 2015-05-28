@@ -1,4 +1,7 @@
-angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timeline'])
+angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timeline','angular-loading-bar'])
+.config(['cfpLoadingBarProvider', function(cfpLoadingBarProvider) {
+	cfpLoadingBarProvider.includeSpinner = false;
+}])
 .factory('socket', function ($rootScope) {
 	var socket = io.connect();
 	return {
