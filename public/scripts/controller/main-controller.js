@@ -193,8 +193,8 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		console.log(error);
 	});
 	
-	socket.on('fetchingJiras',function (response) {
-		console.log('fetching jiras after delay of '+Math.round(response.delay/1000/60*100)/100+' min');
+	socket.on('fetchingJiras',function (delay) {
+		console.log('fetching jiras after delay of '+Math.round(delay/1000/60*100)/100+' min');
 	});
 	
 	var updatePaginatedList = function (page) {
@@ -413,30 +413,23 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 	
 	$interval(function () {
 		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.lastUpdated);
-	},5000);
+	});
+
+	$scope.initFollowUp = function () {
+		var followUpModal;
+		var followUpModalOptions = {
+			templateUrl : 'followUpModal.html',
+			scope : $scope,
+			size : 'lg'
+		};
+		followUpModal = $modal.open(followUpModalOptions);
+	};
 	
 	$scope.jiraSelected = function (jiraId) {
 		restService.getJiraDetails(jiraId)
 		.then(function (response) {
 			$scope.selectedJira = response.data;
 			var timelineModal;
-			// var detailsModal;
-			// var followUpModal;
-			// var detailsModalOptions = {
-			// 	templateUrl : 'jiraDetailsModal.html',
-			// 	scope:$scope,
-			// 	size:'lg',
-			// 	windowClass : 'custom-modal'
-			// }
-			// var followUpModalOptions = {
-			// 	templateUrl : 'followUpModal.html',
-			// 	scope : $scope,
-			// 	size : 'lg'
-			// };
-			// detailsModal = $modal.open(detailsModalOptions);
-			// detailsModal.result.then(function (){
-			// 	followUpModal = $modal.open(followUpModalOptions);
-			// });
 			$scope.timelineEvents = getTimelineEvents();
 			var timelineModalOptions = {
 				templateUrl : 'timelineModal.html',
@@ -445,9 +438,27 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 				windowClass : 'custom-modal'
 			}
 			timelineModal = $modal.open(timelineModalOptions);
+
 			timelineModal.result.finally(function () {
 				$scope.timelineModalVariables.includeCommentsInTimeline = false;
 			});
+
+			timelineModal.result.then(function (reason) {
+				if (reason == 'details') {
+					var detailsModal;
+					var detailsModalOptions = {
+						templateUrl : 'jiraDetailsModal.html',
+						scope:$scope,
+						size:'lg',
+						windowClass : 'custom-modal'
+					}
+					detailsModal = $modal.open(detailsModalOptions);
+					detailsModal.result.then($scope.initFollowUp);
+				} else if (reason == 'followup') {
+					$scope.initFollowUp();
+				};
+			});
+
 		},function () {
 			console.log('details were not found for the selected jira');
 		});

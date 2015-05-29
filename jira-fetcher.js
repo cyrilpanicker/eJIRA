@@ -69,13 +69,13 @@ var loopJiraFetch = function (context,jiraService,helper) {
 };
 
 module.exports = function (context) {
-	var helper = require('./helper')(context);
+	var helper = require('./jiraHelperService')(context);
 	var jiraService;
 
 	if (context.isTestRun) {
 		jiraService = require('./testJiraService');
 	} else{
-		jiraService = require('./jiraService')(context.config);
+		jiraService = require('./jiraService')(context);
 	};
 
 	console.log('fetching jiras');

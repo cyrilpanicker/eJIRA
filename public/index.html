@@ -494,7 +494,9 @@
 					<input type="checkbox" ng-model="timelineModalVariables.includeCommentsInTimeline" /> Show comments in timeline
 				</label>
 			</div>
-			<button class="btn btn-primary" ng-click="$close()">Back</button>
+			<button class="btn btn-danger" ng-click="$close('followup')" ng-disabled="!user.userName" >Follow Up</button>
+			<button class="btn btn-danger" ng-click="$close('details')">Details</button>
+			<button class="btn btn-primary" ng-click="$dismiss()">Back</button>
 		</div>
 	</script>
 </body>
