@@ -22,11 +22,11 @@ var io = require('socket.io')(server);
 var eventEmitter = new events.EventEmitter();
 
 var modules = [
-	'./jira-fetcher',
-	'./socket-api',
-	'./event-api',
-	'./authentication-api',
-	'./rest-api',
+	'./jiraFetcher',
+	'./socketApi',
+	'./eventApi',
+	'./authenticationApi',
+	'./restApi',
 ];
 
 var context = {

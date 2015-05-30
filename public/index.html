@@ -82,13 +82,13 @@
 			padding-left: 5px;
 			padding-right: 5px;
 		}
-		.input-group select.form-control{
+		table .input-group select.form-control{
 			width: 52px;
 		}
-		.input-group-addon{
+		table .input-group-addon{
 			background-color: white;
 		}
-		.input-group .input-group-addon .form-control{
+		table .input-group .input-group-addon .form-control{
 			height: 20px;
 			width: 45px;
 			border-top-width: 0px;
@@ -181,6 +181,9 @@
 		div.yellowEvent{
 			background-color: #F7FA7A;
 			border-color: #AF70FF;
+		}
+		.mailform .input-group{
+			width: 100%
 		}
 	</style>
 </head>
@@ -434,10 +437,36 @@
 		</div>
 	</script>
 	<script type="text/ng-template" id="followUpModal.html">
-		<div class="modal-header">header</div>
-		<div class="modal-body">body</div>
+		<div class="modal-header">
+			<h3>
+				<strong>Follow Up by Email</strong>
+			</h3>
+		</div>
+		<div class="modal-body mailform">
+			<form novalidate>
+				<div class="input-group">
+				  <span class="input-group-addon"><strong>To : </strong></span>
+				  <input type="text" class="form-control" ng-model="mail.to"/>
+				</div>
+				<br/>
+				<div class="input-group">
+				  <span class="input-group-addon"><strong>Cc : </strong></span>
+				  <input type="text" class="form-control" ng-model="mail.cc"/>
+				</div>
+				<br/>
+				<!--<div class="input-group">
+				  <span class="input-group-addon"><strong>Subject : </strong></span>
+				  <input type="text" class="form-control"/>
+				</div>
+				<br/>-->
+				<div class="input-group">
+					<textarea class="form-control" ng-model="mail.text"></textarea>
+				</div>
+			</form>
+		</div>
 		<div class="modal-footer">
-			<button class="btn btn-danger" ng-click="$dismiss()">Back</button>
+			<button class="btn btn-danger" ng-click="sendMail(mail)" >Send</button>
+			<button class="btn btn-primary" ng-click="$dismiss()">Cancel</button>
 		</div>
 	</script>
 	<script type="text/ng-template" id="loginModal.html">

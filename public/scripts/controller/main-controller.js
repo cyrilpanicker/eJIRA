@@ -55,6 +55,13 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 			}
 		});
 	};
+	service.sendMail = function (mail) {
+		return $http({
+			method:'POST',
+			url:'/mail',
+			data:mail
+		});
+	};
 	return service;
 }])
 .controller('JiraController', ['$scope','$interval','$modal','socket','restService', function ($scope,$interval,$modal,socket,restService) {
@@ -100,6 +107,29 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		search : "Search...",
 		nothingSelected : "Apply Filter"
 	};
+
+	$scope.mail = {
+		from:'',
+		to:'',
+		cc:'',
+		subject:'',
+		text:''
+	};
+
+	$scope.$watch('user',function () {
+		if ($scope.user.email) {
+			$scope.mail.from = $scope.user.email;
+			$scope.mail.cc = $scope.user.email;
+		};
+	});
+
+	$scope.$watch('selectedJira',function () {
+		if ($scope.selectedJira.assignee) {
+			$scope.mail.to = $scope.selectedJira.assignee.userName+'@searshc.com';
+			$scope.mail.subject = $scope.selectedJira.id+' - follow up required.';
+			$scope.mail.text = 'Hi ';
+		};
+	});
 	
 	$scope.lastUpdatedInMinAgo = 0;
 
@@ -184,6 +214,10 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 			}
 		}
 		return events
+	};
+
+	$scope.sendMail = function (mail) {
+		restService.sendMail(mail);
 	};
 
 	$scope.selectedEvent = {};
