@@ -15,10 +15,10 @@ var testUsers = [
 		email:'cyril@xyz.com'
 	},
 	{
-		uid:'tom',
-		name:'Tom Abraham',
-		userPassword:'Apr@2015',
-		email:'tom@xyz.com'
+		uid:'rthanka',
+		name:'Rejeesh Thankappan',
+		userPassword:'infy@6000',
+		email:'rthanka@searshc.com'
 	},
 	{
 		uid:'john',
@@ -27,10 +27,10 @@ var testUsers = [
 		email:'john@xyz.com'
 	},
 	{
-		uid:'james',
-		name:'James Alex',
-		userPassword:'james@1903',
-		email:'james@xyz.com'
+		uid:'ssiraju',
+		name:'Shinu Sirajudeen',
+		userPassword:'Apr@2015',
+		email:'ssiraju@searshc.com'
 	}
 ];
 

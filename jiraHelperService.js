@@ -219,7 +219,9 @@ var getProcessedMinimalJiraList = function (list) {
 		minimalList[i].id = list[i].id;
 		minimalList[i].status = list[i].status;
 		minimalList[i].priority = list[i].priority;
-		minimalList[i].assignee = list[i].assignee.name;
+		minimalList[i].assignee = {};
+		minimalList[i].assignee.name = list[i].assignee.name;
+		minimalList[i].assignee.userName = list[i].assignee.userName;
 		minimalList[i].component = list[i].components[0];
 		minimalList[i].idleSince = list[i].idleSince;
 		if (list[i].slaDueIn) {

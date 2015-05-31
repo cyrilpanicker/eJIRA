@@ -5,7 +5,7 @@ var events = require('events');
 var isTestRun = false;
 
 for (var i = process.argv.length - 1; i >= 0; i--) {
-	if (process.argv[i].toLowerCase().indexOf('test') > -1) {
+	if (process.argv[i].toLowerCase().indexOf('-test') > -1) {
 		isTestRun = true;
 		break;
 	};

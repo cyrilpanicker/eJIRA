@@ -117,17 +117,22 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 	};
 
 	$scope.$watch('user',function () {
-		if ($scope.user.email) {
+		if ($scope.user.userName) {
 			$scope.mail.from = $scope.user.email;
 			$scope.mail.cc = $scope.user.email;
+			for (var i = $scope.assignees.length - 1; i >= 0; i--) {
+				if ($scope.assignees[i].userName == $scope.user.userName) {
+					$scope.assignees[i].selected = true;
+				};
+			};
 		};
 	});
 
 	$scope.$watch('selectedJira',function () {
 		if ($scope.selectedJira.assignee) {
 			$scope.mail.to = $scope.selectedJira.assignee.userName+'@searshc.com';
-			$scope.mail.subject = $scope.selectedJira.id+' - follow up required.';
-			$scope.mail.text = 'Hi ';
+			$scope.mail.subject = $scope.selectedJira.id+' - follow up required';
+			$scope.mail.text = 'Hi '+$scope.selectedJira.assignee.name.split(' ').slice(0,1).join(' ')+',\n\nI would like to follow up on this issue. What is the latest on this JIRA?\n\nThanks,\n'+$scope.user.name.split(' ').slice(0,1).join(' ');
 		};
 	});
 	
@@ -281,12 +286,24 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		$scope.priorities = [];
 		$scope.statuses = [];
 		// $scope.components = [];
-		var assignees = getUniquePropertyValues($scope.list,'assignee');
+		var assignees = getUniquePropertyValues($scope.list,'assignee','userName');
 		var priorities = getUniquePropertyValues($scope.list,'priority');
 		var statuses = getUniquePropertyValues($scope.list,'status');
 		// var components = getUniquePropertyValues($scope.list,'component');
 		for (var i = assignees.length - 1; i >= 0; i--) {
-			$scope.assignees.push({name:assignees[i],selected:false});
+			if ($scope.user.userName && $scope.user.userName == assignees[i].userName) {
+				$scope.assignees.push({
+					name:assignees[i].name,
+					userName:assignees[i].userName,
+					selected:true
+				});
+			} else {
+				$scope.assignees.push({
+					name:assignees[i].name,
+					userName:assignees[i].userName,
+					selected:false
+				});
+			};
 		};
 		for (var i = priorities.length - 1; i >= 0; i--) {
 			$scope.priorities.push({name:priorities[i],selected:false});
@@ -298,20 +315,37 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		// 	$scope.components.push({name:components[i],selected:false});
 		// };
 	};
+
+	var clearFilters = function () {
+		for (var i = $scope.assignees.length - 1; i >= 0; i--) {
+			$scope.assignees[i].selected = false;
+		};
+	};
 	
-	var getUniquePropertyValues = function (list,propertyName) {
-		var propertyValues = [];
+	var getUniquePropertyValues = function (list,propertyName,subPropertyName) {
+		var propertyValues = [], propertyValue;
 		for (var i = list.length - 1; i >= 0; i--) {
-			var propertyValue = list[i][propertyName];
+			if (subPropertyName) {
+				propertyValue = list[i][propertyName][subPropertyName];
+			}else{
+				propertyValue = list[i][propertyName];
+			}
 			var propertyValueFound = false;
 			for (var j = propertyValues.length - 1; j >= 0; j--) {
-				if (propertyValue == propertyValues[j]) {
-					propertyValueFound = true;
-					break;
-				}
+				if (subPropertyName) {
+					if (propertyValue == propertyValues[j][subPropertyName]) {
+						propertyValueFound = true;
+						break;
+					};
+				} else{
+					if (propertyValue == propertyValues[j]) {
+						propertyValueFound = true;
+						break;
+					}
+				};
 			};
 			if (!propertyValueFound) {
-				propertyValues.push(propertyValue);
+				propertyValues.push(list[i][propertyName]);
 			};
 		};
 		return propertyValues;
@@ -333,7 +367,7 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		var filteredList = [];
 		for (var i = 0; i < list.length; i++) {
 			for (var j = assignees.length - 1; j >= 0; j--) {
-				if (list[i].assignee == assignees[j].name) {
+				if (list[i].assignee.userName == assignees[j].userName) {
 					filteredList.push(list[i]);
 					break;
 				};
@@ -449,7 +483,7 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.lastUpdated);
 	});
 
-	$scope.initFollowUp = function () {
+	$scope.showFollowUpModal = function () {
 		var followUpModal;
 		var followUpModalOptions = {
 			templateUrl : 'followUpModal.html',
@@ -487,9 +521,9 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 						windowClass : 'custom-modal'
 					}
 					detailsModal = $modal.open(detailsModalOptions);
-					detailsModal.result.then($scope.initFollowUp);
+					detailsModal.result.then($scope.showFollowUpModal);
 				} else if (reason == 'followup') {
-					$scope.initFollowUp();
+					$scope.showFollowUpModal();
 				};
 			});
 
@@ -534,6 +568,7 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		restService.logout()
 		.finally(function () {
 			$scope.user = {};
+			clearFilters();
 		});
 	};
 	
@@ -543,8 +578,7 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		
 		var loginModalOptions = {
 			templateUrl : 'loginModal.html',
-			scope:$scope,
-			size:'sm',
+			scope:$scope
 		}
 		
 		loginModal = $modal.open(loginModalOptions);
