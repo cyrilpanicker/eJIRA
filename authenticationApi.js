@@ -18,7 +18,7 @@ var testUsers = [
 		uid:'rthanka',
 		name:'Rejeesh Thankappan',
 		userPassword:'infy@6000',
-		email:'rthanka@searshc.com'
+		email:'qwe@rty.com'
 	},
 	{
 		uid:'john',
@@ -30,7 +30,7 @@ var testUsers = [
 		uid:'ssiraju',
 		name:'Shinu Sirajudeen',
 		userPassword:'Apr@2015',
-		email:'ssiraju@searshc.com'
+		email:'abc@xyz.com'
 	}
 ];
 
