@@ -24,6 +24,13 @@
 		"secret":"there-is-no-secret",
 		"cookieAge":86400000
 	},
+	"ldapServerOptions":{
+		"url": "ldap://glbdirqr.global.us.shldcorp.com:389",
+		"searchBase": "ou=people,o=intra,dc=sears,dc=com",
+		"searchFilter": "(uid={{username}})",
+		"usernameField":"uid",
+		"passwordField":"userPassword"
+	},
 	"team":[
 		"USP_SAL_IRS_SUPPORT",
 		"USP_UC_UP_SUPPORT",

@@ -9,16 +9,10 @@ MongoStore = require('connect-mongo')(session);
 
 var testUsers = [
 	{
-		uid:'cyril',
-		name:'Cyril Panicker',
+		uid:'tom',
+		name:'Tom James',
 		userPassword:'infy@5000',
-		email:'cyril@xyz.com'
-	},
-	{
-		uid:'rthanka',
-		name:'Rejeesh Thankappan',
-		userPassword:'infy@6000',
-		email:'qwe@rty.com'
+		email:'tom@xyz.com'
 	},
 	{
 		uid:'john',
@@ -27,10 +21,10 @@ var testUsers = [
 		email:'john@xyz.com'
 	},
 	{
-		uid:'ssiraju',
-		name:'Shinu Sirajudeen',
-		userPassword:'Apr@2015',
-		email:'abc@xyz.com'
+		uid:'sam',
+		name:'Sam Jose',
+		userPassword:'sam@2015',
+		email:'sam@xyz.com'
 	}
 ];
 
@@ -153,13 +147,7 @@ module.exports = function (context) {
 	} else {
 
 		var ldapOptions = {
-			server: {
-				url: 'ldap://glbdirqr.global.us.shldcorp.com:389',
-				searchBase: 'ou=people,o=intra,dc=sears,dc=com',
-				searchFilter: '(uid={{username}})',
-				usernameField:'uid',
-				passwordField:'userPassword'
-			}
+			server: config.ldapServerOptions
 		};
 
 		passport.use(new LdapStrategy(ldapOptions));
