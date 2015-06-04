@@ -318,7 +318,7 @@
 			<tbody>
 				<tr ng-repeat="jira in paginatedList">
 					<td>
-						<a class="btn btn-xs btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{jira.id}}" target="_blank" ng-bind="jira.id"></a>
+						<a class="btn btn-xs btn-danger" ng-href="{{jiraLink}}/{{jira.id}}" target="_blank" ng-bind="jira.id"></a>
 					</td>
 					<td class="left-align" ng-bind="jira.assignee.name"></td>
 					<td ng-bind="jira.priority"></td>
@@ -352,7 +352,7 @@
 	<script type="text/ng-template" id="jiraDetailsModal.html">
 		<div class="modal-header">
 			<h3>
-				<a class="btn btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> 
+				<a class="btn btn-danger" ng-href="{{jiraLink}}/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> 
 				<strong><span ng-bind="selectedJira.summary"></span></strong>
 			</h3>
 		</div>
@@ -472,7 +472,7 @@
 	<script type="text/ng-template" id="loginModal.html">
 		<div class="modal-header">
 			<button class="close" ng-click="$dismiss()">x</button>
-			<h1 class="text-center">Sears Login</h1>
+			<h1 class="text-center">Login</h1>
 		</div>
 		<div class="modal-body">
 			<form class="form col-md-12 center-block" name="loginForm" novalidate ng-submit="login()">
@@ -497,7 +497,7 @@
 	<script type="text/ng-template" id="timelineModal.html">
 		<div class="modal-header">
 			<h3>
-				<a class="btn btn-danger" ng-href="https://obujira.searshc.com/jira/browse/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> 
+				<a class="btn btn-danger" ng-href="{{jiraLink}}/{{selectedJira.id}}" target="_blank" ng-bind="selectedJira.id"></a> 
 				<strong><span ng-bind="selectedJira.summary"></span></strong>
 			</h3>
 		</div>

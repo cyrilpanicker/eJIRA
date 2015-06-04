@@ -130,7 +130,7 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 
 	$scope.$watch('selectedJira',function () {
 		if ($scope.selectedJira.assignee) {
-			$scope.mail.to = $scope.selectedJira.assignee.userName+'@searshc.com';
+			$scope.mail.to = $scope.selectedJira.assignee.userName+'@'+$scope.emailDomain;
 			$scope.mail.subject = $scope.selectedJira.id+' - follow up required';
 			$scope.mail.text = 'Hi '+$scope.selectedJira.assignee.name.split(' ').slice(0,1).join(' ')+',\n\nI would like to follow up on this issue. What is the latest on this JIRA?\n\nThanks,\n'+$scope.user.name.split(' ').slice(0,1).join(' ');
 		};
@@ -153,6 +153,8 @@ angular.module('app', ['ui.bootstrap','isteven-multi-select','destegabry.timelin
 		$scope.list = response.processedMinimalList;
 		$scope.lastUpdated = new Date(response.listLastUpdated);
 		$scope.lastUpdatedInMinAgo = getTimeDiffInMin($scope.listLastUpdated);
+		$scope.jiraLink = response.jiraServer+response.browseApi;
+		$scope.emailDomain = response.emailDomain;
 		updateDropDowns();
 		$scope.updateFilteredList();
 	});

@@ -1,6 +1,7 @@
 {
 	"jiraServer":"https://obujira.searshc.com",
 	"searchApi":"/jira/rest/api/2/search",
+	"browseApi":"/jira/browse",
 	"query":"Project = SG AND Type = Bug AND 'Defect Environment' = Production AND Status not in (Resolved, Verified, Closed) AND ('Sub Project' in ('ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects') OR 'Sub Project' in ('ShopSears 2.0', 'ShopSears Lite_UC', 'ShopSears 2.5', 'ShopSears2.5', 'ShopSears 2.5_Lite', 'Production Defects', 'Mobile 6.x', 'Core Mobile Services', 'Service Abstraction Layer', FindItCenter, 'In Store Kiosk') AND component in (USP_VAULT, USP_URS, USP_UAS, USP_SAL, USP_UC, USP_UPAS, USP_OMS, 'Print Receipt', USP_UP, USP_PV, USP_SAL_Cart, USP_Shipping, RDM, USP_IRS))",
 	"priorities":["P1","P2"],
 	"sla":{
@@ -39,6 +40,7 @@
 		"debug":true,
 		"ignoreTLS":false
 	},
+	"emailDomain":"searshc.com",
 	"team":[
 		"USP_SAL_IRS_SUPPORT",
 		"USP_UC_UP_SUPPORT",

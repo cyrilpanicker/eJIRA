@@ -39,7 +39,10 @@ var context = {
 		update : {
 			processedMinimalList : [],
 			listLastUpdated : null,
-			listFetchedIn : null
+			listFetchedIn : null,
+			jiraServer : config.jiraServer,
+			browseApi : config.browseApi,
+			emailDomain : config.emailDomain
 		},
 		processedList : []
 	}
