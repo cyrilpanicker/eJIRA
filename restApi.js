@@ -1,8 +1,7 @@
-var mailer = require('./mailerApi');
-
 module.exports = function (context) {
 
 	var app = context.app;
+	var mailer = require('./mailerApi')(context);
 
 	app.get('/user',function (req,res,next) {
 		if (!req.user) {
@@ -28,7 +27,7 @@ module.exports = function (context) {
 	});
 
 	app.post('/mail',function (req,res,next) {
-		mailer.sendMail(req.body,context.isTestRun)
+		mailer.sendMail(req.body)
 		.then(function (response) {
 			res.send(response);
 		},function (errorResponse) {

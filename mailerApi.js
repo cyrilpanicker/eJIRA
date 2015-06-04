@@ -1,18 +1,10 @@
 var Promise = require('bluebird');
-
 var mailer = require('nodemailer');
 var smtpTransport = require('nodemailer-smtp-transport');
 
-var transporter = mailer.createTransport(smtpTransport({
-	port:25,
-	host:'exchange2010smtp.global.us.shldcorp.com',
-	secure:false,
-	authMethod:'Plain',
-	debug:true,
-	ignoreTLS:false
-}));
+var isTestRun, transporter;
 
-var sendMail = function (options,isTestRun) {
+var sendMail = function (options) {
 	return new Promise(function (resolve,reject) {
 		if (isTestRun) {
 			resolve('test mail sent');
@@ -29,6 +21,11 @@ var sendMail = function (options,isTestRun) {
 	});
 };
 
-module.exports = {
-	sendMail : sendMail
+module.exports = function (context) {
+	isTestRun = context.isTestRun;
+	transporter = mailer.createTransport(smtpTransport(context.config.emailExchangeServerOptions));
+
+	return {
+		sendMail : sendMail
+	};
 };

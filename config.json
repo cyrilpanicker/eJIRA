@@ -31,6 +31,14 @@
 		"usernameField":"uid",
 		"passwordField":"userPassword"
 	},
+	"emailExchangeServerOptions":{
+		"port":25,
+		"host":"exchange2010smtp.global.us.shldcorp.com",
+		"secure":false,
+		"authMethod":"Plain",
+		"debug":true,
+		"ignoreTLS":false
+	},
 	"team":[
 		"USP_SAL_IRS_SUPPORT",
 		"USP_UC_UP_SUPPORT",
