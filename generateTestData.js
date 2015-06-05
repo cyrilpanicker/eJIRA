@@ -1,4 +1,6 @@
-var jiraService = require('./jiraService');
+var jiraService = require('./jiraService')({
+	config : require('./config.json')
+});
 var fs = require('fs');
 
 jiraService.getAllJiras()
